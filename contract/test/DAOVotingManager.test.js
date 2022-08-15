@@ -20,6 +20,7 @@ describe("DAOVotingManager", function () {
         expect(await contract.minimumOwnersToExecute()).to.be.equal(3)
         expect(await contract.daoName()).to.be.equal(daoName)
         expect(await contract.getOwners()).to.deep.equal(owners)
+        expect((await contract.getTransactions()).length).to.be.equal(0)
     });
 
 });
