@@ -1,25 +1,29 @@
-import logo from './logo.svg';
 import './App.css';
+import {useEffect, useState} from "react";
+import {ethers} from "ethers";
+import {Route, Routes} from "react-router";
+import Manage from "./Manage";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+
+    const [provider, setProvider] = useState()
+
+    const initialize = async () => {
+        console.log("Initializing")
+        const etherProvider = new ethers.providers.Web3Provider(window.ethereum);
+
+        await etherProvider.send(
+            'eth_requestAccounts',
+            [],
+        );
+        setProvider(etherProvider)
+    }
+
+    useEffect(() => {
+        initialize()
+    }, [])
+
+    return <Routes>
+        <Route path="*" element={<Manage/>}/>
+    </Routes>
 }
-
-export default App;
