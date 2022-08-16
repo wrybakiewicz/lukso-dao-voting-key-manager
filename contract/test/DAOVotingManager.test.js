@@ -1,5 +1,5 @@
 const {expect} = require("chai");
-const {ethers} = require("hardhat");
+const {ethers, waffle} = require("hardhat");
 
 describe("DAOVotingManager", function () {
 
@@ -30,7 +30,7 @@ describe("DAOVotingManager", function () {
         const owners = [owner.address, address1.address, address2.address]
         const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
 
-        const addOwnerTx = contract.connect(address3).addOwner(address4.address, 1);
+        const addOwnerTx = contract.connect(address3).addOwnerPropose(address4.address, 1);
 
         await expect(addOwnerTx).to.be.revertedWith("Executor must be owner of a dao")
     });
@@ -42,7 +42,7 @@ describe("DAOVotingManager", function () {
         const owners = [owner.address, address1.address, address2.address]
         const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
 
-        const addOwnerTx = contract.addOwner(address3.address, 5);
+        const addOwnerTx = contract.addOwnerPropose(address3.address, 5);
 
         await expect(addOwnerTx).to.be.revertedWith("New minimum owners to execute must be < owners count")
     });
@@ -54,7 +54,7 @@ describe("DAOVotingManager", function () {
         const owners = [owner.address, address1.address, address2.address]
         const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
 
-        const addOwnerTx = contract.addOwner(address2.address, 4);
+        const addOwnerTx = contract.addOwnerPropose(address2.address, 4);
 
         await expect(addOwnerTx).to.be.revertedWith("Address cannot be an owner")
     });
@@ -66,7 +66,7 @@ describe("DAOVotingManager", function () {
         const owners = [owner.address, address1.address, address2.address]
         const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
 
-        await contract.addOwner(address3.address, 4);
+        await contract.addOwnerPropose(address3.address, 4);
 
         const transactions = await contract.getTransactions()
         expect(transactions.length).to.be.equal(1)
@@ -74,7 +74,7 @@ describe("DAOVotingManager", function () {
         expect(transactions[0].status).to.be.equal(0)
         expect(transactions[0].data.operation).to.be.equal(0)
         expect(transactions[0].data.payload).to.be.equal("0x")
-        expect(transactions[0].data.contractAddress).to.be.equal("0x0000000000000000000000000000000000000000")
+        expect(transactions[0].data.to).to.be.equal("0x0000000000000000000000000000000000000000")
         expect(transactions[0].data.newMinimumOwnersToExecute).to.be.equal(4)
         expect(transactions[0].data.owner).to.be.equal(address3.address)
         expect(transactions[0].addressVotes.length).to.be.equal(3)
@@ -93,7 +93,7 @@ describe("DAOVotingManager", function () {
         const owners = [owner.address]
         const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
 
-        await contract.addOwner(address1.address, 2);
+        await contract.addOwnerPropose(address1.address, 2);
 
         expect(await contract.getOwners()).to.deep.equal([owner.address, address1.address])
         expect(await contract.minimumOwnersToExecute()).to.be.equal(2)
@@ -104,9 +104,63 @@ describe("DAOVotingManager", function () {
         expect(transactions[0].status).to.be.equal(1)
         expect(transactions[0].data.operation).to.be.equal(0)
         expect(transactions[0].data.payload).to.be.equal("0x")
-        expect(transactions[0].data.contractAddress).to.be.equal("0x0000000000000000000000000000000000000000")
+        expect(transactions[0].data.to).to.be.equal("0x0000000000000000000000000000000000000000")
         expect(transactions[0].data.newMinimumOwnersToExecute).to.be.equal(2)
         expect(transactions[0].data.owner).to.be.equal(address1.address)
+    });
+
+    it("should transfer create proposal", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const minimumOwnersToExecute = 2
+        const daoName = "fashionDao"
+        const owners = [owner.address, address1.address]
+
+        const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
+        const account = await contract.account()
+        await owner.sendTransaction({to: account, value: ethers.utils.parseEther("1.0")})
+        const receiverInitialBalance = await address1.getBalance()
+
+        await contract.executePropose("0x", address1.address, ethers.utils.parseEther("0.3"))
+
+        const receiverEndBalance = await address1.getBalance()
+        expect(receiverEndBalance.sub(receiverInitialBalance)).to.be.equal(0)
+        expect(await owner.provider.getBalance(account)).to.be.equal(ethers.utils.parseEther("1.0"))
+        const transactions = await contract.getTransactions()
+        expect(transactions.length).to.be.equal(1)
+        expect(transactions[0].id).to.be.equal(0)
+        expect(transactions[0].status).to.be.equal(0)
+        expect(transactions[0].data.operation).to.be.equal(2)
+        expect(transactions[0].data.payload).to.be.equal("0x")
+        expect(transactions[0].data.to).to.be.equal(address1.address)
+        expect(transactions[0].data.newMinimumOwnersToExecute).to.be.equal(0)
+        expect(transactions[0].data.owner).to.be.equal("0x0000000000000000000000000000000000000000")
+    });
+
+    it("should transfer create proposal and execute", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const minimumOwnersToExecute = 1
+        const daoName = "fashionDao"
+        const owners = [owner.address]
+        
+        const contract = await deployContract(minimumOwnersToExecute, daoName, owners)
+        const account = await contract.account()
+        await owner.sendTransaction({to: account, value: ethers.utils.parseEther("1.0")})
+        const receiverInitialBalance = await address1.getBalance()
+
+        await contract.executePropose("0x", address1.address, ethers.utils.parseEther("0.3"))
+
+        const receiverEndBalance = await address1.getBalance()
+        expect(receiverEndBalance.sub(receiverInitialBalance)).to.be.equal(ethers.utils.parseEther("0.3"))
+        expect(await owner.provider.getBalance(account)).to.be.equal(ethers.utils.parseEther("0.7"))
+        const transactions = await contract.getTransactions()
+        expect(transactions.length).to.be.equal(1)
+        expect(transactions[0].id).to.be.equal(0)
+        expect(transactions[0].status).to.be.equal(1)
+        expect(transactions[0].data.operation).to.be.equal(2)
+        expect(transactions[0].data.payload).to.be.equal("0x")
+        expect(transactions[0].data.to).to.be.equal(address1.address)
+        expect(transactions[0].data.newMinimumOwnersToExecute).to.be.equal(0)
+        expect(transactions[0].data.owner).to.be.equal("0x0000000000000000000000000000000000000000")
     });
 
 });

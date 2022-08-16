@@ -17,7 +17,8 @@ contract DAOVotingManager {
 
         //for EXECUTE
         bytes payload;
-        address contractAddress;
+        address to;
+        uint value;
 
         //for ADD_OWNER and REMOVE_OWNER
         uint newMinimumOwnersToExecute;
@@ -60,7 +61,7 @@ contract DAOVotingManager {
         _;
     }
 
-    LSP0ERC725Account account;
+    LSP0ERC725Account public account;
     uint public minimumOwnersToExecute;
     string public daoName;
     address[] internal owners;
@@ -76,18 +77,31 @@ contract DAOVotingManager {
         account = new LSP0ERC725Account(address(this));
     }
 
-    function addOwner(address _newOwner, uint _newMinimumOwnersToExecute) public onlyDaoOwners notAnOwner(_newOwner) {
+    function addOwnerPropose(address _newOwner, uint _newMinimumOwnersToExecute) public onlyDaoOwners notAnOwner(_newOwner) {
         uint ownersLength = owners.length;
         require(_newMinimumOwnersToExecute <= ownersLength + 1, "New minimum owners to execute must be < owners count");
 
-        uint256 transactionId = transactionIdCounter.current();
-        Data memory data = Data(OperationType.ADD_OWNER, "", address(0), _newMinimumOwnersToExecute, _newOwner);
+        uint transactionId = transactionIdCounter.current();
+        Data memory data = Data(OperationType.ADD_OWNER, "", address(0), 0, _newMinimumOwnersToExecute, _newOwner);
 
         transactionIdCounter.increment();
         transactionIdToData[transactionId] = data;
         transactionIdToOwnerToVote[transactionId][msg.sender] = Vote.YES;
         if(minimumOwnersToExecute == 1) {
-            addOwnerExecute(_newOwner, _newMinimumOwnersToExecute);
+            addOwner(_newOwner, _newMinimumOwnersToExecute);
+            transactionIdToStatus[transactionId] = Status.ACCEPTED;
+        }
+    }
+
+    function executePropose(bytes calldata _payload, address _address, uint _value) public onlyDaoOwners {
+        uint transactionId = transactionIdCounter.current();
+        Data memory data = Data(OperationType.EXECUTE, _payload, _address, _value, 0, address(0));
+
+        transactionIdCounter.increment();
+        transactionIdToData[transactionId] = data;
+        transactionIdToOwnerToVote[transactionId][msg.sender] = Vote.YES;
+        if(minimumOwnersToExecute == 1) {
+            execute(_payload, _address, _value);
             transactionIdToStatus[transactionId] = Status.ACCEPTED;
         }
     }
@@ -111,8 +125,12 @@ contract DAOVotingManager {
         return result;
     }
 
-    function addOwnerExecute(address _newOwner, uint _newMinimumOwnersToExecute) internal {
+    function addOwner(address _newOwner, uint _newMinimumOwnersToExecute) internal {
         owners.push(_newOwner);
         minimumOwnersToExecute = _newMinimumOwnersToExecute;
+    }
+
+    function execute(bytes calldata _payload, address _address, uint _value) internal {
+        account.execute(0, _address, _value, _payload);
     }
 }
