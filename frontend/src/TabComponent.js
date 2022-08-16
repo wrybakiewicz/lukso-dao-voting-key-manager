@@ -1,6 +1,7 @@
 import {Tab, Tabs} from "react-bootstrap";
 import {useNavigate} from "react-router";
 import "./TabComponent.css"
+import Deploy from "./Deploy";
 
 export default function TabComponent({active}) {
 
@@ -27,7 +28,7 @@ export default function TabComponent({active}) {
                     AAA
                 </Tab>
                 <Tab eventKey="deploy" title="Deploy">
-                    BBB
+                    <Deploy />
                 </Tab>
             </Tabs>
         </div>

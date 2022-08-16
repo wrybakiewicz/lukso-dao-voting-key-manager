@@ -1,4 +1,3 @@
-import './App.css';
 import {useEffect, useState} from "react";
 import {ethers} from "ethers";
 import {Route, Routes} from "react-router";
