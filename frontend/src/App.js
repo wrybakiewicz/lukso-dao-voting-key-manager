@@ -2,7 +2,7 @@ import './App.css';
 import {useEffect, useState} from "react";
 import {ethers} from "ethers";
 import {Route, Routes} from "react-router";
-import Manage from "./Manage";
+import TabComponent from "./TabComponent";
 
 export default function App() {
 
@@ -24,6 +24,7 @@ export default function App() {
     }, [])
 
     return <Routes>
-        <Route path="*" element={<Manage/>}/>
+        <Route path="*" element={<TabComponent active={"manage"}/>}/>
+        <Route path="deploy" element={<TabComponent active={"deploy"}/>}/>
     </Routes>
 }
