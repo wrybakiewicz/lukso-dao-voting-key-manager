@@ -1,0 +1,32 @@
+.tabComponent {
+    margin: auto;
+    display: block;
+    width: 70%;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 200%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+/*active*/
+.nav-link.active {
+    background-color: #505050 !important;
+    color: white !important;
+}
+
+/*not active*/
+.nav-tabs, .nav-link {
+    background-color: #D3D3D3 !important;
+    color: black !important;
+}
+
+/*hoover*/
+.nav-tabs .nav-link:hover{
+    background-color: #B8B8B8 !important;
+    color: white
+}
