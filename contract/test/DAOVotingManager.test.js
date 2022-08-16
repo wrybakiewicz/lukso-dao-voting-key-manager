@@ -59,7 +59,7 @@ describe("DAOVotingManager", function () {
     });
 
     it("should fail to add owner when address is an owner", async () => {
-        const [owner, address1, address2, address3] = await ethers.getSigners();
+        const [owner, address1, address2] = await ethers.getSigners();
         const minimumOwnersToExecute = 3
         const daoName = "fashionDao"
         const owners = [owner.address, address1.address, address2.address]
