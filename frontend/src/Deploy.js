@@ -1,14 +1,36 @@
 import Form from 'react-bootstrap/Form';
 import "./Deploy.css"
 import {IoAddCircleSharp, MdDelete} from "react-icons/all";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Button, InputGroup, ListGroup} from "react-bootstrap";
+import {ContractFactory, ethers} from "ethers";
+import DAOVotingManager from "./contract/DAOVotingManager.json"
 
-export default function Deploy({}) {
+export default function Deploy({address, signer}) {
 
+    const [daoNameInput, setDaoNameInput] = useState('')
+    const [addYourselfAsAnOwner, setAddYourselfAsAnOwner] = useState(true)
     const [newOwnerInput, setNewOwnerInput] = useState('')
     const [owners, setOwners] = useState([])
     const [showNewOwnerRow, setShowNewOwnerRow] = useState(false)
+    const [minimumOwnersToExecute, setMinimumOwnersToExecute] = useState(1)
+
+    const initialize = () => {
+        if(address) {
+            setOwners([address])
+        }
+    }
+
+    useEffect(_ => {
+        initialize()
+    }, [address])
+
+    const deployContract = () => {
+        console.log("Deploying minimum owners: " + minimumOwnersToExecute + " name: " + daoNameInput + " owners: ")
+        console.log(owners)
+        const contractFactory = ContractFactory.fromSolidity(DAOVotingManager, signer)
+        const contract = contractFactory.deploy(minimumOwnersToExecute, daoNameInput, owners)
+    }
 
     const addOwner = () => {
         setOwners([...owners, newOwnerInput])
@@ -21,12 +43,26 @@ export default function Deploy({}) {
         setOwners(newOwners)
     }
 
-    const daoName = <div>
+    const updateAddYourselfAsAnOwner = (checked) => {
+        setAddYourselfAsAnOwner(checked)
+        if(checked) {
+            setOwners([...owners, address])
+        } else {
+            const newOwners = owners.filter(owner => owner !== address)
+            setOwners(newOwners)
+        }
+    }
+
+    const daoName = () => <div>
         <Form.Label className={"inputFont"}>DAO Name</Form.Label>
         <div className={"deployInputName"}>
-            <Form.Control placeholder={"DAO Name"}/>
+            <Form.Control placeholder={"DAO Name"} value={daoNameInput} onChange={e => setDaoNameInput(e.target.value)}/>
         </div>
     </div>
+
+    const canAddOwner = () => {
+        return ethers.utils.isAddress(newOwnerInput) && newOwnerInput.toLowerCase() !== address.toLowerCase()
+    }
 
     const newOwnerRow = () => {
         if (showNewOwnerRow) {
@@ -35,7 +71,7 @@ export default function Deploy({}) {
                     <Form.Control placeholder={"New owner address"} value={newOwnerInput}
                                   onChange={e => setNewOwnerInput(e.target.value)}/>
                     <Button variant="outline-dark" onClick={addOwner}
-                            disabled={false}>
+                            disabled={!canAddOwner()}>
                         Add
                     </Button>
                 </InputGroup>
@@ -58,9 +94,10 @@ export default function Deploy({}) {
 
     const ownerList = () => {
         if (owners.length > 0) {
+            const ownersWithoutOurself = owners.filter(owner => owner !== address)
             return <div className={"ownerList"}>
                 <ListGroup>
-                    {owners.map((owner, index) => <ListGroup.Item className="d-flex justify-content-between pt-3"
+                    {ownersWithoutOurself.map((owner, index) => <ListGroup.Item className="d-flex justify-content-between pt-3"
                                                                   key={owner}>
                         {owner}
                         <div className={"iconDelete"}>
@@ -74,12 +111,13 @@ export default function Deploy({}) {
         }
     }
 
-    const ownersSection = <div className={"owners"}>
+    const ownersSection = () => <div className={"owners"}>
         <Form.Label className={"inputFont"}>Owners</Form.Label>
         <Form.Check
             type="switch"
             label="Add yourself as an owner"
-            defaultChecked={true}
+            checked={addYourselfAsAnOwner}
+            onChange={e => updateAddYourselfAsAnOwner(e.target.checked)}
         />
         {ownerList()}
         {newOwnerRow()}
@@ -92,8 +130,8 @@ export default function Deploy({}) {
                 <Form.Label className={"inputFont"}>Any transaction need confirmations from</Form.Label>
                 <span className={"ownersInfo"}>
             <span className={"numberInput"}>
-                <Form.Select>
-                    {owners.map((_, index) => <option value={index + 1}>{index + 1}</option>)}
+                <Form.Select value={minimumOwnersToExecute} onChange={(e) => setMinimumOwnersToExecute(e.target.value)}>
+                    {owners.map((_, index) => <option key={index} value={index + 1}>{index + 1}</option>)}
                 </Form.Select>
             </span>
             <span className={"ownersInfo"}>out of {owners.length} owners</span>
@@ -104,18 +142,26 @@ export default function Deploy({}) {
         }
     }
 
+    const canDeploy = () => {
+        return daoNameInput !== "" && owners.length > 0
+    }
+
     const deployButton = () => {
         return <div className={"deployButton"}>
-            <Button variant="outline-dark" onClick={null}
-                    disabled={false}>
+            <Button variant="outline-dark" onClick={deployContract}
+                    disabled={!canDeploy()}>
                 Deploy
             </Button>
         </div>
     }
 
+    if(!address) {
+        return <div className={"connectWallet"}>Connect your wallet</div>
+    }
+
     return <div className={"deploy"}>
-        {daoName}
-        {ownersSection}
+        {daoName()}
+        {ownersSection()}
         {confirmation()}
         {deployButton()}
     </div>
