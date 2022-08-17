@@ -3,17 +3,22 @@ import Form from "react-bootstrap/Form";
 import {Button, InputGroup} from "react-bootstrap";
 import {useState} from "react";
 import {ethers} from "ethers";
+import {useMediaQuery} from "react-responsive";
 
 export default function Manage({address, signer}) {
 
     const [existingDaoContractAddressInput, setExistingDaoContractAddressInput] = useState('')
+
+    const isBigScreen = useMediaQuery({
+        query: '(min-width: 1620px)'
+    })
 
     const findExistingDaoContract = () => {
         console.log("Finding existing dao contract: " + existingDaoContractAddressInput)
         //TODO: check if bytecode is ok
     }
 
-    const findDao = () => <div className={"findDao"}>
+    const findDao = () => <div className={isBigScreen ? "findDaoBig" : "findDaoSmall"}>
         <InputGroup className="mb-3">
             <Form.Control placeholder={"Existing DAO contract address"} value={existingDaoContractAddressInput}
                           onChange={e => setExistingDaoContractAddressInput(e.target.value)}/>
@@ -30,5 +35,6 @@ export default function Manage({address, signer}) {
 
     return <div className={"manage"}>
         {findDao()}
+        {/*//TODO: list of your daos*/}
     </div>
 }

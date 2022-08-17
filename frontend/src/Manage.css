@@ -5,6 +5,10 @@
     margin-top: 2%;
 }
 
-.findDao {
-    width: 35%
+.findDaoBig {
+    width: 40%
+}
+
+.findDaoSmall {
+    width: 65%
 }
