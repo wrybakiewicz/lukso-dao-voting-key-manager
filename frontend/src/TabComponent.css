@@ -1,7 +1,8 @@
 .tabComponent {
     margin: auto;
     display: block;
-    width: 70%;
+    width: 80%;
+    /*//TODO: fix deploy */
 }
 
 .header {
@@ -20,13 +21,18 @@
 }
 
 /*not active*/
-.nav-tabs, .nav-link {
+.nav-link {
     background-color: #D3D3D3 !important;
     color: black !important;
 }
 
 /*hoover*/
-.nav-tabs .nav-link:hover{
+.nav-link:hover{
     background-color: #B8B8B8 !important;
     color: white
+}
+
+.nav-link.active:hover {
+    background-color: #404040 !important;
+    color: white !important;
 }
