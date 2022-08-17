@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {Button, InputGroup, ListGroup} from "react-bootstrap";
 import {ContractFactory, ethers} from "ethers";
 import DAOVotingManager from "./contract/DAOVotingManager.json"
+import {toast} from "react-toastify";
 
 export default function Deploy({address, signer}) {
 
@@ -14,6 +15,7 @@ export default function Deploy({address, signer}) {
     const [owners, setOwners] = useState([])
     const [showNewOwnerRow, setShowNewOwnerRow] = useState(false)
     const [minimumOwnersToExecute, setMinimumOwnersToExecute] = useState(1)
+    const [deployInProgress, setDeployInProgress] = useState(false)
 
     const initialize = () => {
         if(address) {
@@ -28,8 +30,24 @@ export default function Deploy({address, signer}) {
     const deployContract = () => {
         console.log("Deploying minimum owners: " + minimumOwnersToExecute + " name: " + daoNameInput + " owners: ")
         console.log(owners)
+        setDeployInProgress(true)
         const contractFactory = ContractFactory.fromSolidity(DAOVotingManager, signer)
-        const contract = contractFactory.deploy(minimumOwnersToExecute, daoNameInput, owners)
+        const deployPromise = contractFactory.deploy(minimumOwnersToExecute, daoNameInput, owners).then(_ => {
+            setDaoNameInput('')
+            setAddYourselfAsAnOwner(true)
+            setNewOwnerInput('')
+            setOwners([address])
+            setShowNewOwnerRow(false)
+            setMinimumOwnersToExecute(1)
+        }).finally(_ => {
+            setDeployInProgress(false)
+        })
+        toast.promise(deployPromise, {
+            pending: '🔨 Deploying your DAO 🔨',
+            success: '🦀 DAO Deployed 🦀',
+            error: '☠ DAO Deploy error ☠'
+        })
+        //TODO: save on backend ?
     }
 
     const addOwner = () => {
@@ -149,7 +167,7 @@ export default function Deploy({address, signer}) {
     const deployButton = () => {
         return <div className={"deployButton"}>
             <Button variant="outline-dark" onClick={deployContract}
-                    disabled={!canDeploy()}>
+                    disabled={!canDeploy() || deployInProgress}>
                 Deploy
             </Button>
         </div>
