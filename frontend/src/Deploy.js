@@ -20,14 +20,14 @@ export default function Deploy({address, signer}) {
     const [deployInProgress, setDeployInProgress] = useState(false)
 
     const initialize = () => {
-        if(address) {
+        if(address && signer) {
             setOwners([address])
         }
     }
 
     useEffect(_ => {
         initialize()
-    }, [address])
+    }, [address, signer])
 
     const showFullAddress = useMediaQuery({
         query: '(min-width: 1250px)'

@@ -4,7 +4,7 @@ import "./TabComponent.css"
 import Deploy from "./Deploy";
 import Manage from "./Manage";
 
-export default function TabComponent({active, address, signer}) {
+export default function TabComponent({active, address, signer, provider}) {
 
     const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ export default function TabComponent({active, address, signer}) {
                 fill
                 onSelect={onSelect}>
                 <Tab eventKey="manage" title="Manage">
-                    <Manage address={address} signer={signer} />
+                    <Manage address={address} signer={signer} provider={provider}/>
                 </Tab>
                 <Tab eventKey="deploy" title="Deploy">
                     <Deploy address={address} signer={signer}/>

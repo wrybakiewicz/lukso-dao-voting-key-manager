@@ -4,32 +4,44 @@ import {Button, InputGroup} from "react-bootstrap";
 import {useState} from "react";
 import {ethers} from "ethers";
 import {useMediaQuery} from "react-responsive";
+import contract from "./contract/DAOVotingManager.json";
 
-export default function Manage({address, signer}) {
+export default function Manage({address, signer, provider}) {
 
+    const [isAddressValid, setIsAddressValid] = useState(false)
     const [existingDaoContractAddressInput, setExistingDaoContractAddressInput] = useState('')
 
     const isBigScreen = useMediaQuery({
         query: '(min-width: 1620px)'
     })
 
-    const findExistingDaoContract = () => {
+    const findExistingDaoContract = async () => {
         console.log("Finding existing dao contract: " + existingDaoContractAddressInput)
-        //TODO: check if bytecode is ok
+
+    }
+
+    const updateFindExistingContractAddressInput = async (input) => {
+        setExistingDaoContractAddressInput(input)
+        if (ethers.utils.isAddress(input)) {
+            const contractCode = await provider.getCode(input)
+            setIsAddressValid(contractCode === contract.deployedBytecode)
+        } else {
+            setIsAddressValid(false)
+        }
     }
 
     const findDao = () => <div className={isBigScreen ? "findDaoBig" : "findDaoSmall"}>
         <InputGroup className="mb-3">
             <Form.Control placeholder={"Existing DAO contract address"} value={existingDaoContractAddressInput}
-                          onChange={e => setExistingDaoContractAddressInput(e.target.value)}/>
+                          onChange={e => updateFindExistingContractAddressInput(e.target.value)}/>
             <Button variant="outline-dark" onClick={findExistingDaoContract}
-                    disabled={!ethers.utils.isAddress(existingDaoContractAddressInput)}>
+                    disabled={!isAddressValid}>
                 Find
             </Button>
         </InputGroup>
     </div>
 
-    if(!address || !signer) {
+    if (!address || !signer || !provider) {
         return <div className={"connectWallet"}>Connect your wallet</div>
     }
 

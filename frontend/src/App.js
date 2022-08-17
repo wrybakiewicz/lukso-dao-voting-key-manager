@@ -8,6 +8,7 @@ export default function App() {
 
     const [address, setAddress] = useState()
     const [signer, setSigner] = useState()
+    const [provider, setProvider] = useState()
 
     const initialize = async () => {
         console.log("Initializing")
@@ -19,6 +20,7 @@ export default function App() {
         );
         setSigner(await etherProvider.getSigner())
         setAddress(accounts[0])
+        setProvider(etherProvider)
     }
 
     useEffect(() => {
@@ -26,7 +28,7 @@ export default function App() {
     }, [])
 
     return <Routes>
-        <Route path="*" element={<TabComponent active={"manage"} address={address} signer={signer}/>}/>
+        <Route path="*" element={<TabComponent active={"manage"} address={address} signer={signer} provider={provider}/>}/>
         <Route path="deploy" element={<TabComponent active={"deploy"} address={address} signer={signer}/>}/>
     </Routes>
 }
