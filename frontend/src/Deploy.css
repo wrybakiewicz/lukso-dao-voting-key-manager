@@ -1,6 +1,6 @@
 .deploy {
     padding-top: 2%;
-    padding-left: 25%
+    padding-left: 32.5%
 }
 
 .deployButton {
@@ -12,7 +12,7 @@
 }
 
 .deployInputName {
-    width: 65%
+    width: 50%
 }
 
 .ownersInfo {
@@ -32,7 +32,7 @@
 
 .ownerList {
     padding-top: 1%;
-    width: 65%
+    width: 50%
 }
 
 .owners {
@@ -42,7 +42,7 @@
 .add {
     width: 5px;
     padding-top: 1%;
-    margin-left: 32%;
+    margin-left: 23%;
 }
 
 .inputFont {

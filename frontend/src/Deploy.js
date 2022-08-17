@@ -62,8 +62,8 @@ export default function Deploy({address, signer}) {
         setNewOwnerInput('')
     }
 
-    const deleteOwner = (index) => {
-        const newOwners = owners.filter((_, arrayIndex) => arrayIndex !== index)
+    const deleteOwner = (ownerToDelete) => {
+        const newOwners = owners.filter((owner) => ownerToDelete !== owner)
         setOwners(newOwners)
     }
 
@@ -121,11 +121,11 @@ export default function Deploy({address, signer}) {
             const ownersWithoutOurself = owners.filter(owner => owner !== address)
             return <div className={"ownerList"}>
                 <ListGroup>
-                    {ownersWithoutOurself.map((owner, index) => <ListGroup.Item className="d-flex justify-content-between pt-3"
+                    {ownersWithoutOurself.map((owner) => <ListGroup.Item className="d-flex justify-content-between pt-3"
                                                                   key={owner}>
                         {displayAddress(owner, showFullAddress)}
                         <div className={"iconDelete"}>
-                            <MdDelete size={30} onClick={() => deleteOwner(index)}/>
+                            <MdDelete size={30} onClick={() => deleteOwner(owner)}/>
                         </div>
                     </ListGroup.Item>)}
                 </ListGroup>
