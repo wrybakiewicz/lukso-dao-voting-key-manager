@@ -2,9 +2,8 @@ import {Tab, Tabs} from "react-bootstrap";
 import {useNavigate} from "react-router";
 import "./TabComponent.css"
 import Deploy from "./Deploy";
-import Manage from "./Manage";
 
-export default function TabComponent({active, address, signer, provider}) {
+export default function TabComponent({active, address, signer, manageComponent}) {
 
     const navigate = useNavigate();
 
@@ -26,7 +25,7 @@ export default function TabComponent({active, address, signer, provider}) {
                 fill
                 onSelect={onSelect}>
                 <Tab eventKey="manage" title="Manage">
-                    <Manage address={address} signer={signer} provider={provider}/>
+                    {manageComponent()}
                 </Tab>
                 <Tab eventKey="deploy" title="Deploy">
                     <Deploy address={address} signer={signer}/>

@@ -5,8 +5,9 @@ import {useState} from "react";
 import {ethers} from "ethers";
 import {useMediaQuery} from "react-responsive";
 import contract from "./contract/DAOVotingManager.json";
+import {useNavigate} from "react-router";
 
-export default function Manage({address, signer, provider}) {
+export default function ManageFind({address, signer, provider}) {
 
     const [isAddressValid, setIsAddressValid] = useState(false)
     const [existingDaoContractAddressInput, setExistingDaoContractAddressInput] = useState('')
@@ -15,9 +16,10 @@ export default function Manage({address, signer, provider}) {
         query: '(min-width: 1620px)'
     })
 
-    const findExistingDaoContract = async () => {
-        console.log("Finding existing dao contract: " + existingDaoContractAddressInput)
+    const navigate = useNavigate();
 
+    const findExistingDaoContract = async () => {
+        navigate('/manage/' + existingDaoContractAddressInput)
     }
 
     const updateFindExistingContractAddressInput = async (input) => {
@@ -47,6 +49,6 @@ export default function Manage({address, signer, provider}) {
 
     return <div className={"manage"}>
         {findDao()}
-        {/*//TODO: list of your daos*/}
+        {/*//TODO: list of your daos: fetch from frontend?*/}
     </div>
 }
