@@ -21,8 +21,13 @@
     display: flex !important;
 }
 
+.outOfOwnersInfo {
+    padding-top: 0.5%;
+    padding-left: 1%;
+}
+
 .numberInput {
-    width: 6% !important;
+    width: 60px !important;
 }
 
 .ownerList {

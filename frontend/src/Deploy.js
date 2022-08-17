@@ -6,6 +6,8 @@ import {Button, InputGroup, ListGroup} from "react-bootstrap";
 import {ContractFactory, ethers} from "ethers";
 import DAOVotingManager from "./contract/DAOVotingManager.json"
 import {toast} from "react-toastify";
+import { useMediaQuery } from 'react-responsive'
+import {displayAddress} from "./ResponsiveUtils";
 
 export default function Deploy({address, signer}) {
 
@@ -26,6 +28,10 @@ export default function Deploy({address, signer}) {
     useEffect(_ => {
         initialize()
     }, [address])
+
+    const showFullAddress = useMediaQuery({
+        query: '(min-width: 1250px)'
+    })
 
     const deployContract = () => {
         console.log("Deploying minimum owners: " + minimumOwnersToExecute + " name: " + daoNameInput + " owners: ")
@@ -117,7 +123,7 @@ export default function Deploy({address, signer}) {
                 <ListGroup>
                     {ownersWithoutOurself.map((owner, index) => <ListGroup.Item className="d-flex justify-content-between pt-3"
                                                                   key={owner}>
-                        {owner}
+                        {displayAddress(owner, showFullAddress)}
                         <div className={"iconDelete"}>
                             <MdDelete size={30} onClick={() => deleteOwner(index)}/>
                         </div>
@@ -152,7 +158,7 @@ export default function Deploy({address, signer}) {
                     {owners.map((_, index) => <option key={index} value={index + 1}>{index + 1}</option>)}
                 </Form.Select>
             </span>
-            <span className={"ownersInfo"}>out of {owners.length} owners</span>
+            <div className={"outOfOwnersInfo"}>out of {owners.length} owners</div>
         </span>
             </div>
         } else {
@@ -173,7 +179,7 @@ export default function Deploy({address, signer}) {
         </div>
     }
 
-    if(!address) {
+    if(!address || !signer) {
         return <div className={"connectWallet"}>Connect your wallet</div>
     }
 

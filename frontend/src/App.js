@@ -26,7 +26,7 @@ export default function App() {
     }, [])
 
     return <Routes>
-        <Route path="*" element={<TabComponent active={"manage"}/>}/>
+        <Route path="*" element={<TabComponent active={"manage"} address={address} signer={signer}/>}/>
         <Route path="deploy" element={<TabComponent active={"deploy"} address={address} signer={signer}/>}/>
     </Routes>
 }
