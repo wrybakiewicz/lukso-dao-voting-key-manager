@@ -1,6 +1,6 @@
 import {useParams} from "react-router";
 import {ethers} from "ethers";
-import contract from "./contract/DAOVotingManager.json";
+import contract from "./contract/DaoVotingManager.json";
 import {useEffect, useState} from "react";
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';

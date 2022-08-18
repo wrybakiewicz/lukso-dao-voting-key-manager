@@ -3,7 +3,7 @@ import {useNavigate} from "react-router";
 import "./TabComponent.css"
 import Deploy from "./Deploy";
 
-export default function TabComponent({active, address, signer, manageComponent}) {
+export default function TabComponent({active, provider, signer, manageComponent}) {
 
     const navigate = useNavigate();
 
@@ -21,14 +21,14 @@ export default function TabComponent({active, address, signer, manageComponent})
         </div>
         <div className={"tabComponent"}>
             <Tabs
-                defaultActiveKey={active}
+                activeKey={active}
                 fill
                 onSelect={onSelect}>
                 <Tab eventKey="manage" title="Manage">
                     {manageComponent()}
                 </Tab>
                 <Tab eventKey="deploy" title="Deploy">
-                    <Deploy address={address} signer={signer}/>
+                    <Deploy provider={provider} signer={signer}/>
                 </Tab>
             </Tabs>
         </div>

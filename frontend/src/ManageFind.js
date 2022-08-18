@@ -4,7 +4,7 @@ import {Button, InputGroup} from "react-bootstrap";
 import {useState} from "react";
 import {ethers} from "ethers";
 import {useMediaQuery} from "react-responsive";
-import contract from "./contract/DAOVotingManager.json";
+import contract from "./contract/DaoVotingManager.json";
 import {useNavigate} from "react-router";
 
 export default function ManageFind({address, signer, provider}) {
