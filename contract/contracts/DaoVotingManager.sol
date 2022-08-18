@@ -29,5 +29,6 @@ contract DaoVotingManager {
 
     function deposit(uint _amount) public {
         daoGovernanceToken.transfer(msg.sender, address(this), _amount, true, "");
+        depositorsBalances[msg.sender] = _amount;
     }
 }

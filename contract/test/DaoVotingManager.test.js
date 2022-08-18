@@ -66,6 +66,7 @@ describe("DaoVotingManager", () => {
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("7.0"))
         expect(await digitalAsset.balanceOf(daoVotingManager.address)).to.be.equal(ethers.utils.parseEther("3.0"))
+        expect(await daoVotingManager.depositorsBalances(owner.address)).to.be.equal(ethers.utils.parseEther("3.0"))
     });
 
 })
