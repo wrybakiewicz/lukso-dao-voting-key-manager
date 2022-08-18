@@ -9,6 +9,8 @@ contract DaoVotingManager {
 
     enum Vote {PENDING, YES, NO}
 
+    enum Status {PENDING, EXECUTED, EXECUTION_FAILED}
+
     struct Proposal {
         uint id;
         address createdBy;
@@ -21,6 +23,8 @@ contract DaoVotingManager {
 
         uint yesVotes;
         uint noVotes;
+
+        Status status;
     }
 
     LSP0ERC725Account public account;
@@ -31,9 +35,9 @@ contract DaoVotingManager {
     uint public proposalTimeToVoteInSeconds;
     mapping(address => uint) public depositorsBalances;
     Counters.Counter internal proposalIdCounter = Counters.Counter(1);
-    uint public lastExecutedProposalId;
-    mapping(address => mapping(uint => Vote)) internal addressToProposalIdToVote;
+    mapping(address => mapping(uint => Vote)) public addressToProposalIdToVote;
     mapping(uint => Proposal) internal proposalIdToProposal;
+    mapping(address => uint) public addressToLastVotedProposalId;
 
     constructor(address _daoGovernanceTokenAddress, string memory _daoName,
         uint _tokensToCreateProposal, uint _minTokensToExecuteProposal, uint _proposalTimeToVoteInSeconds) {
@@ -58,8 +62,41 @@ contract DaoVotingManager {
         require(depositorsBalances[msg.sender] >= tokensToCreateProposal, "Not enough deposited tokens");
         uint proposalId = proposalIdCounter.current();
 
-        proposalIdToProposal[proposalId] = Proposal(proposalId, msg.sender, block.timestamp, _operation, _to, _value, _data, 0, 0);
+        proposalIdToProposal[proposalId] = Proposal(proposalId, msg.sender, block.timestamp, _operation, _to, _value, _data, 0, 0, Status.PENDING);
+        addressToLastVotedProposalId[msg.sender] = proposalId;
         proposalIdCounter.increment();
+    }
+
+    function vote(uint _proposalId, bool vote) public {
+        require(depositorsBalances[msg.sender] > 0, "Address must have some deposit");
+        require(addressToProposalIdToVote[msg.sender][_proposalId] == Vote.PENDING, "Address already voted");
+        Proposal memory proposal = proposalIdToProposal[_proposalId];
+        require(proposal.createdAt + proposalTimeToVoteInSeconds > block.timestamp, "Too late to vote");
+
+        if (_proposalId > addressToLastVotedProposalId[msg.sender]) {
+            addressToLastVotedProposalId[msg.sender] = _proposalId;
+        }
+        uint senderBalance = depositorsBalances[msg.sender];
+        uint _yesVotes = proposal.yesVotes;
+        uint _noVotes = proposal.noVotes;
+        if (vote) {
+            _yesVotes += senderBalance;
+            proposal.yesVotes = _yesVotes;
+            addressToProposalIdToVote[msg.sender][_proposalId] = Vote.YES;
+        } else {
+            _noVotes += senderBalance;
+            proposal.noVotes = _noVotes;
+            addressToProposalIdToVote[msg.sender][_proposalId] = Vote.NO;
+        }
+
+        if (_yesVotes > _noVotes && _yesVotes >= minTokensToExecuteProposal) {
+            try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
+                proposal.status = Status.EXECUTED;
+            } catch {
+                proposal.status = Status.EXECUTION_FAILED;
+            }
+        }
+        proposalIdToProposal[_proposalId] = proposal;
     }
 
     function getProposals() public view returns (Proposal[] memory) {

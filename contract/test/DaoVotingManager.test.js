@@ -98,6 +98,8 @@ describe("DaoVotingManager", () => {
         expect(proposals[0].payload).to.be.equal(payload)
         expect(proposals[0].yesVotes).to.be.equal(0)
         expect(proposals[0].noVotes).to.be.equal(0)
+        expect(proposals[0].status).to.be.equal(0)
+        expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(1)
     });
 
     it("should not create proposal because of too low token deposit", async () => {
@@ -148,6 +150,7 @@ describe("DaoVotingManager", () => {
         expect(proposals[0].payload).to.be.equal(payload)
         expect(proposals[0].yesVotes).to.be.equal(0)
         expect(proposals[0].noVotes).to.be.equal(0)
+        expect(proposals[0].status).to.be.equal(0)
 
         expect(proposals[1].id).to.be.equal(2)
         expect(proposals[1].createdBy).to.be.equal(owner.address)
@@ -158,6 +161,212 @@ describe("DaoVotingManager", () => {
         expect(proposals[1].payload).to.be.equal(payload)
         expect(proposals[1].yesVotes).to.be.equal(0)
         expect(proposals[1].noVotes).to.be.equal(0)
+        expect(proposals[1].status).to.be.equal(0)
+
+        expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(2)
     });
 
+    it("should not vote because of 0 tokens deposit", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        const operation = 0
+        const to = address1.address
+        const value = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to, value, payload)
+
+        const voteResult =  daoVotingManager.connect(address1).vote(1, true)
+
+        await expect(voteResult).to.be.revertedWith("Address must have some deposit")
+    });
+
+    it("should not vote when address already voted", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        const operation = 0
+        const to = address1.address
+        const value = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to, value, payload)
+
+        await daoVotingManager.vote(1, true)
+        const voteResult = daoVotingManager.vote(1, true)
+
+        await expect(voteResult).to.be.revertedWith("Address already voted")
+    });
+
+    it("should not vote when too late", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        const operation = 0
+        const to = address1.address
+        const value = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to, value, payload)
+
+        await time.increase(31);
+
+        const voteResult = daoVotingManager.vote(1, true)
+
+        await expect(voteResult).to.be.revertedWith("Too late to vote")
+    });
+
+    it("should vote", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        const operation = 0
+        const to = address1.address
+        const value = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to, value, payload)
+        const latestTime = await time.latest()
+
+        await daoVotingManager.vote(1, true)
+
+        const vote = await daoVotingManager.addressToProposalIdToVote(owner.address, 1)
+        expect(vote).to.be.equal(1)
+
+        expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(1)
+
+
+        const proposals = await daoVotingManager.getProposals()
+        expect(proposals.length).to.be.equal(1)
+        expect(proposals[0].id).to.be.equal(1)
+        expect(proposals[0].createdBy).to.be.equal(owner.address)
+        expect(proposals[0].createdAt).to.be.equal(latestTime)
+        expect(proposals[0].operation).to.be.equal(operation)
+        expect(proposals[0].to).to.be.equal(to)
+        expect(proposals[0].value).to.be.equal(value)
+        expect(proposals[0].payload).to.be.equal(payload)
+        expect(proposals[0].yesVotes).to.be.equal(ethers.utils.parseEther("3.0"))
+        expect(proposals[0].noVotes).to.be.equal(0)
+        expect(proposals[0].status).to.be.equal(0)
+    });
+
+    it("should create proposal and fail to execute", async () => {
+        const [owner, address1, address2, address3] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.transfer(owner.address, address1.address, ethers.utils.parseEther("5.0"), true, "0x")
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("5.0"))
+
+        const operation = 0
+        const to1 = address2.address
+        const value1 = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to1, value1, payload)
+        const latestTime1 = await time.latest()
+
+        await daoVotingManager.vote(1, true)
+
+        expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 1)).to.be.equal(1)
+        expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(1)
+
+        const proposals = await daoVotingManager.getProposals()
+        expect(proposals.length).to.be.equal(1)
+
+        expect(proposals[0].id).to.be.equal(1)
+        expect(proposals[0].createdBy).to.be.equal(owner.address)
+        expect(proposals[0].createdAt).to.be.equal(latestTime1)
+        expect(proposals[0].operation).to.be.equal(operation)
+        expect(proposals[0].to).to.be.equal(to1)
+        expect(proposals[0].value).to.be.equal(value1)
+        expect(proposals[0].payload).to.be.equal(payload)
+        expect(proposals[0].yesVotes).to.be.equal(ethers.utils.parseEther("5.0"))
+        expect(proposals[0].noVotes).to.be.equal(0)
+        expect(proposals[0].status).to.be.equal(2)
+    });
+
+    it("should create 2 proposals and vote for both from 2 accounts then execute", async () => {
+        const [owner, address1, address2, address3] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.transfer(owner.address, address1.address, ethers.utils.parseEther("5.0"), true, "0x")
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        await digitalAsset.connect(address1).authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.connect(address1).deposit(ethers.utils.parseEther("2.0"))
+        await owner.sendTransaction({to: await daoVotingManager.account(), value: ethers.utils.parseEther("2.0")})
+
+        const operation = 0
+        const to1 = address2.address
+        const value1 = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to1, value1, payload)
+        const latestTime1 = await time.latest()
+
+        const to2 = address3.address
+        const value2 = ethers.utils.parseEther("2.0")
+        await daoVotingManager.connect(address1).createProposal(operation, to2, value2, payload)
+        const latestTime2 = await time.latest()
+
+        await daoVotingManager.vote(1, true)
+        await daoVotingManager.connect(address1).vote(1, false)
+        await daoVotingManager.vote(2, true)
+        await daoVotingManager.connect(address1).vote(2, true)
+
+        expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 1)).to.be.equal(1)
+        expect(await daoVotingManager.addressToProposalIdToVote(address1.address, 1)).to.be.equal(2)
+        expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 2)).to.be.equal(1)
+        expect(await daoVotingManager.addressToProposalIdToVote(address1.address, 2)).to.be.equal(1)
+
+        expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(2)
+        expect(await daoVotingManager.connect(address1).addressToLastVotedProposalId(owner.address)).to.be.equal(2)
+
+        const proposals = await daoVotingManager.getProposals()
+        expect(proposals.length).to.be.equal(2)
+
+        expect(proposals[0].id).to.be.equal(1)
+        expect(proposals[0].createdBy).to.be.equal(owner.address)
+        expect(proposals[0].createdAt).to.be.equal(latestTime1)
+        expect(proposals[0].operation).to.be.equal(operation)
+        expect(proposals[0].to).to.be.equal(to1)
+        expect(proposals[0].value).to.be.equal(value1)
+        expect(proposals[0].payload).to.be.equal(payload)
+        expect(proposals[0].yesVotes).to.be.equal(ethers.utils.parseEther("3.0"))
+        expect(proposals[0].noVotes).to.be.equal(ethers.utils.parseEther("2.0"))
+        expect(proposals[0].status).to.be.equal(0)
+
+        expect(proposals[1].id).to.be.equal(2)
+        expect(proposals[1].createdBy).to.be.equal(address1.address)
+        expect(proposals[1].createdAt).to.be.equal(latestTime2)
+        expect(proposals[1].operation).to.be.equal(operation)
+        expect(proposals[1].to).to.be.equal(to2)
+        expect(proposals[1].value).to.be.equal(value2)
+        expect(proposals[1].payload).to.be.equal(payload)
+        expect(proposals[1].yesVotes).to.be.equal(ethers.utils.parseEther("5.0"))
+        expect(proposals[1].noVotes).to.be.equal(0)
+        expect(proposals[1].status).to.be.equal(1)
+    });
 })
