@@ -11,19 +11,23 @@ contract DaoVotingManager {
     uint public minTokensToCreateProposal;
     uint public minTokensToExecuteProposal;
     uint public proposalTimeToVoteInSeconds;
-
+    mapping(address => uint) public depositorsBalances;
 
     constructor(address _daoGovernanceTokenAddress, string memory _daoName,
         uint _minTokensToCreateProposal, uint _minTokensToExecuteProposal, uint _proposalTimeToVoteInSeconds) {
         daoGovernanceToken = ILSP7DigitalAsset(_daoGovernanceTokenAddress);
         uint _totalSupply = daoGovernanceToken.totalSupply();
-        require(_minTokensToCreateProposal < _totalSupply, "Min tokens to create proposal must be < total supply");
-        require(_minTokensToExecuteProposal < _totalSupply, "Min tokens to create proposal must be < total supply");
+        require(_minTokensToCreateProposal <= _totalSupply, "Min tokens to create proposal must be <= total supply");
+        require(_minTokensToExecuteProposal <= _totalSupply, "Min tokens to create proposal must be <= total supply");
 
         account = new LSP0ERC725Account(address(this));
         daoName = _daoName;
         minTokensToCreateProposal = _minTokensToCreateProposal;
         minTokensToExecuteProposal = _minTokensToExecuteProposal;
         proposalTimeToVoteInSeconds = _proposalTimeToVoteInSeconds;
+    }
+
+    function deposit(uint _amount) public {
+        daoGovernanceToken.transfer(msg.sender, address(this), _amount, true, "");
     }
 }
