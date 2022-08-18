@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@lukso/lsp-smart-contracts/contracts/LSP0ERC725Account/LSP0ERC725Account.sol";
 
-contract DAOVotingManager {
+contract DAOVotingManager2 {
     using Counters for Counters.Counter;
 
     enum Vote {PENDING, YES, NO}
