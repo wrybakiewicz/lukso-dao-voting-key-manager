@@ -58,6 +58,12 @@ contract DaoVotingManager {
         depositorsBalances[msg.sender] = _amount;
     }
 
+    function withdraw() public {
+        uint lastVotedProposalId = addressToLastVotedProposalId[msg.sender];
+        require(proposalIdToProposal[lastVotedProposalId].createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Cannot withdraw before: last voted proposal created at time + proposalTimeToVoteInSeconds");
+        daoGovernanceToken.transfer(address(this), msg.sender, depositorsBalances[msg.sender], true, "");
+    }
+
     function createProposal(uint256 _operation, address _to, uint256 _value, bytes calldata _data) public {
         require(depositorsBalances[msg.sender] >= tokensToCreateProposal, "Not enough deposited tokens");
         uint proposalId = proposalIdCounter.current();
