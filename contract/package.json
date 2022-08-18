@@ -6,6 +6,8 @@
   },
   "dependencies": {
     "@lukso/lsp-smart-contracts": "^0.6.2",
-    "@openzeppelin/contracts": "^4.7.3"
+    "@openzeppelin/contracts": "^4.7.3",
+    "dotenv": "^16.0.1",
+    "hardhat-deploy": "^0.10.5"
   }
 }

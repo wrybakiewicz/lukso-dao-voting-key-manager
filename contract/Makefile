@@ -9,8 +9,8 @@ test:
 node:
 	npx hardhat node --no-deploy --hostname 0.0.0.0
 
-deploy_local:
-	npx hardhat deploy --network localhost --export ./deploy.json
+deploy_l16:
+	npx hardhat deploy --network lukso --export ./deploy.json
 
 install:
 	npm install

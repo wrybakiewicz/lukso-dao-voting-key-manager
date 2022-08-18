@@ -4,7 +4,10 @@ import {LSP7DigitalAsset} from "@lukso/lsp-smart-contracts/contracts/LSP7Digital
 
 contract LSP7DigitalAssetMock is LSP7DigitalAsset {
 
-    constructor() LSP7DigitalAsset("Mock", "M", msg.sender, false) {
+    constructor(address[] memory owners) LSP7DigitalAsset("Mock", "M", msg.sender, false) {
         _mint(msg.sender, 10 ether, true, "");
+        for(uint i=0; i<owners.length; i++) {
+            _mint(owners[i], 4 ether, true, "");
+        }
     }
 }

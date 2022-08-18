@@ -7,7 +7,7 @@ describe("DaoVotingManager", () => {
     const deployContract = async (daoName, minTokensToCreateProposal,
                                   minTokensToExecuteProposal, proposalTimeToVoteInSeconds) => {
         const LSP7DigitalAsset = await ethers.getContractFactory("LSP7DigitalAssetMock")
-        const digitalAsset = await LSP7DigitalAsset.deploy()
+        const digitalAsset = await LSP7DigitalAsset.deploy([])
 
         const DaoVotingManager = await ethers.getContractFactory("DaoVotingManager")
         const daoVotingManager = await DaoVotingManager.deploy(digitalAsset.address, daoName, minTokensToCreateProposal,
