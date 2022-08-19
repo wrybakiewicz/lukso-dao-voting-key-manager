@@ -23,15 +23,19 @@
 .nav-link {
     background-color: #D3D3D3 !important;
     color: black !important;
+    border-color: white !important;
 }
 
 /*hoover*/
 .nav-link:hover{
     background-color: #B8B8B8 !important;
-    color: white
+    color: white;
+    border-color: white !important;
 }
 
+/*hoover active*/
 .nav-link.active:hover {
     background-color: #404040 !important;
     color: white !important;
+    border-color: white !important;
 }

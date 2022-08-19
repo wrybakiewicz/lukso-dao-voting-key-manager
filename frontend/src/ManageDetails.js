@@ -1,4 +1,4 @@
-import {useParams} from "react-router";
+import {useNavigate, useParams} from "react-router";
 import {ethers} from "ethers";
 import contract from "./contract/DaoVotingManager.json";
 import {useEffect, useState} from "react";
@@ -8,7 +8,9 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import "./ManageDetails.css"
 
-export default function ManageDetails({myAddress, signer, provider}) {
+export default function ManageDetails({myAddress, signer, provider, activeKey}) {
+
+    const navigate = useNavigate();
 
     const [isValidContract, setIsValidContract] = useState()
 
@@ -39,30 +41,36 @@ export default function ManageDetails({myAddress, signer, provider}) {
 
     if (isValidContract) {
         return <div className={"manageDetails"}>
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+            <Tab.Container id="left-tabs-example" activeKey={activeKey}>
                 <Row>
                     <Col sm={2}>
                         <Nav variant="pills" className="flex-column">
                             <Nav.Item>
-                                <Nav.Link eventKey="first">Overview</Nav.Link>
+                                <Nav.Link eventKey="overview" onClick={_ => navigate("/manage/" + address)}>Overview</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="second">Owners</Nav.Link>
+                                <Nav.Link eventKey="deposit" onClick={_ => navigate("/manage/" + address + "/deposit")}>Deposit</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="third">Transactions</Nav.Link>
+                                <Nav.Link eventKey="withdraw" onClick={_ => navigate("/manage/" + address + "/withdraw")}>Withdraw</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link eventKey="transactions" onClick={_ => navigate("/manage/" + address + "/transactions")}>Transactions</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </Col>
                     <Col sm={10}>
                         <Tab.Content>
-                            <Tab.Pane eventKey="first">
+                            <Tab.Pane eventKey="overview">
                                 Overview
                             </Tab.Pane>
-                            <Tab.Pane eventKey="second">
-                                Owners
+                            <Tab.Pane eventKey="deposit">
+                                Deposit
                             </Tab.Pane>
-                            <Tab.Pane eventKey="third">
+                            <Tab.Pane eventKey="withdraw">
+                                Withdraw
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="transactions">
                                 Transactions
                             </Tab.Pane>
                         </Tab.Content>
