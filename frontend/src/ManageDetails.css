@@ -1,3 +1,14 @@
 .manageDetails {
     margin-top: 1%;
 }
+
+.leftTab {
+    border-style: solid;
+    border-width: 1px;
+    border-color: white;
+    border-radius: 3px !important;
+}
+
+.nav-pills>div>a {
+    border-radius: 3px !important;
+}

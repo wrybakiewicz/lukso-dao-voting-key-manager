@@ -41,20 +41,20 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
 
     if (isValidContract) {
         return <div className={"manageDetails"}>
-            <Tab.Container id="left-tabs-example" activeKey={activeKey}>
+            <Tab.Container activeKey={activeKey}>
                 <Row>
                     <Col sm={2}>
-                        <Nav variant="pills" className="flex-column">
-                            <Nav.Item>
+                        <Nav variant="pills" className="flex-column roundedBorders" >
+                            <Nav.Item className={"leftTab"}>
                                 <Nav.Link eventKey="overview" onClick={_ => navigate("/manage/" + address)}>Overview</Nav.Link>
                             </Nav.Item>
-                            <Nav.Item>
+                            <Nav.Item className={"leftTab"}>
                                 <Nav.Link eventKey="deposit" onClick={_ => navigate("/manage/" + address + "/deposit")}>Deposit</Nav.Link>
                             </Nav.Item>
-                            <Nav.Item>
+                            <Nav.Item className={"leftTab"}>
                                 <Nav.Link eventKey="withdraw" onClick={_ => navigate("/manage/" + address + "/withdraw")}>Withdraw</Nav.Link>
                             </Nav.Item>
-                            <Nav.Item>
+                            <Nav.Item className={"leftTab"}>
                                 <Nav.Link eventKey="transactions" onClick={_ => navigate("/manage/" + address + "/transactions")}>Transactions</Nav.Link>
                             </Nav.Item>
                         </Nav>
