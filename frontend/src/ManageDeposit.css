@@ -1,0 +1,15 @@
+.depositSection {
+    max-width: 450px;
+}
+
+.depositValueInfo {
+    color: white;
+}
+
+.depositButton {
+    padding-top: 2%;
+}
+
+.buttonsPadding {
+    padding-right: 1%
+}

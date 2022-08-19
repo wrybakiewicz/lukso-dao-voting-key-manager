@@ -72,16 +72,16 @@ export default function Overview({contract, provider}) {
     }
 
     if (!daoName || !governanceTokenAddress || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress
-        || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote) {
+        || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address) {
         return null
     }
 
-    const name = () => <div className={"overviewSection"}>
+    const name = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Name</div>
         <div className={"overviewValue"}>{daoName}</div>
     </div>
 
-    const governanceToken = () => <div className={"overviewSection"}>
+    const governanceToken = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Governance token</div>
         <div className={"overviewValue"}>
             <a className={"linkToExplorer"} target="_blank"
@@ -89,7 +89,7 @@ export default function Overview({contract, provider}) {
         </div>
     </div>
 
-    const daoVotingManagerAddressDetails = () => <div className={"overviewSection"}>
+    const daoVotingManagerAddressDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>DAO Voting Manager address</div>
         <div className={"overviewValue"}>
             <a className={"linkToExplorer"} target="_blank"
@@ -97,7 +97,7 @@ export default function Overview({contract, provider}) {
         </div>
     </div>
 
-    const daoAccountAddressDetails = () => <div className={"overviewSection"}>
+    const daoAccountAddressDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>DAO Account address</div>
         <div className={"overviewValue"}>
             <a className={"linkToExplorer"} target="_blank"
@@ -105,17 +105,17 @@ export default function Overview({contract, provider}) {
         </div>
     </div>
 
-    const tokensToCreateProposalDetails = () => <div className={"overviewSection"}>
+    const tokensToCreateProposalDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Tokens to create proposal</div>
         <div className={"overviewValue"}>{tokensToCreateProposal}</div>
     </div>
 
-    const minimumTokensToExecuteProposalDetails = () => <div className={"overviewSection"}>
+    const minimumTokensToExecuteProposalDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Minimum tokens to execute proposal</div>
         <div className={"overviewValue"}>{minimumTokensToExecuteProposal}</div>
     </div>
 
-    const proposalTimeToVoteDetails = () => <div className={"overviewSection"}>
+    const proposalTimeToVoteDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Proposal time to vote</div>
         <div className={"overviewValue"}>{renderProposalTimeToVote(proposalTimeToVote)}</div>
     </div>

@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import "./ManageDetails.css"
 import Overview from "./ManageOverview";
+import ManageDeposit from "./ManageDeposit";
 
 export default function ManageDetails({myAddress, signer, provider, activeKey}) {
 
@@ -34,7 +35,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const updateContract = () => {
-        const contract = ContractFactory.getContract(address, DaoVotingManager.abi, provider)
+        const contract = ContractFactory.getContract(address, DaoVotingManager.abi, signer)
         setContract(contract)
     }
 
@@ -72,7 +73,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 <Overview contract={contract} provider={provider}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="deposit">
-                                Deposit
+                                <ManageDeposit contract={contract} signer={signer} currentAddress={myAddress}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="withdraw">
                                 Withdraw

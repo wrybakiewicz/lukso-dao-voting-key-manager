@@ -12,3 +12,12 @@
 .nav-pills>div>a {
     border-radius: 3px !important;
 }
+
+.bigManageSection {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.manageSection {
+    padding-top: 2%;
+}

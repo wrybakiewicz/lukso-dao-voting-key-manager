@@ -11,6 +11,10 @@
     background-color: white;
 }
 
+.bigInputFont {
+    font-size: 200%;
+}
+
 .inputFont {
     font-size: 150%;
 }
