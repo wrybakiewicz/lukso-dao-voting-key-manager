@@ -107,7 +107,7 @@ export default function Deploy({provider, signer}) {
     </div>
 
     const tokensToCreateProposal = () => <div className={"inputPaddingTop"}>
-        <Form.Label className={"inputFont"}>Tokens number to create proposal</Form.Label>
+        <Form.Label className={"inputFont"}>Number of tokens to create proposal</Form.Label>
         <InputGroup>
             <div className={"tooltipStyle"}>
                 <Tooltip
@@ -118,7 +118,7 @@ export default function Deploy({provider, signer}) {
                     </IconButton>
                 </Tooltip>
             </div>
-            <Form.Control placeholder={"Tokens number to create proposal"} type={"number"}
+            <Form.Control placeholder={"Number of tokens to create proposal"} type={"number"}
                           value={tokensNumberToCreateProposal}
                           onChange={e => setTokensNumberToCreateProposal(e.target.value)}/>
         </InputGroup>

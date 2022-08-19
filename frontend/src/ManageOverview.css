@@ -1,0 +1,16 @@
+.linkToExplorer {
+    color: white;
+}
+
+.linkToExplorer:hover {
+    color: #DCDCDC;
+}
+
+.overviewValue {
+    font-size: 150%;
+    color: white;
+}
+
+.overviewSection {
+    padding-top: 2%;
+}
