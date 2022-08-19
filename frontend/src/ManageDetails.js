@@ -1,34 +1,41 @@
 import {useNavigate, useParams} from "react-router";
-import {ethers} from "ethers";
-import contract from "./contract/DaoVotingManager.json";
+import {ContractFactory, ethers} from "ethers";
+import DaoVotingManager from "./contract/DaoVotingManager.json";
 import {useEffect, useState} from "react";
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import "./ManageDetails.css"
+import Overview from "./ManageOverview";
 
 export default function ManageDetails({myAddress, signer, provider, activeKey}) {
 
     const navigate = useNavigate();
 
     const [isValidContract, setIsValidContract] = useState()
+    const [contract, setContract] = useState()
 
     let {address} = useParams();
 
     useEffect(_ => {
         if (myAddress && signer && provider) {
-            updateIsValidContract()
+            updateIsValidContract().then(_ => updateContract())
         }
     }, [myAddress, signer, provider])
 
     const updateIsValidContract = async () => {
         if (ethers.utils.isAddress(address)) {
             const contractCode = await provider.getCode(address)
-            setIsValidContract(contractCode === contract.deployedBytecode)
+            setIsValidContract(contractCode === DaoVotingManager.deployedBytecode)
         } else {
             setIsValidContract(false)
         }
+    }
+
+    const updateContract = () => {
+        const contract = ContractFactory.getContract(address, DaoVotingManager.abi, provider)
+        setContract(contract)
     }
 
     if (!address || !signer || !provider) {
@@ -39,7 +46,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
         return <div className={"connectWallet"}>Provided address is not a DAO Key Manager</div>
     }
 
-    if (isValidContract) {
+    if (isValidContract && contract) {
         return <div className={"manageDetails"}>
             <Tab.Container activeKey={activeKey}>
                 <Row>
@@ -62,7 +69,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                     <Col sm={10}>
                         <Tab.Content>
                             <Tab.Pane eventKey="overview">
-                                Overview
+                                <Overview contract={contract} provider={provider}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="deposit">
                                 Deposit
