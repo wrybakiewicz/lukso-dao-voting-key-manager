@@ -80,7 +80,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 Withdraw
                             </Tab.Pane>
                             <Tab.Pane eventKey="proposals">
-                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress}/>
+                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress} provider={provider}/>
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

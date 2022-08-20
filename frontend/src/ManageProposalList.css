@@ -7,3 +7,15 @@
 .xProposalIcon {
     color: white
 }
+
+.manageProposalWidth {
+    max-width: 450px;
+}
+
+.proposalInfo {
+    padding-bottom: 2%
+}
+
+.proposalInfoValues {
+    color: white
+}
