@@ -1,0 +1,9 @@
+.proposalIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.xProposalIcon {
+    color: white
+}

@@ -9,6 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import "./ManageDetails.css"
 import Overview from "./ManageOverview";
 import ManageDeposit from "./ManageDeposit";
+import ManageProposalList from "./ManageProposalList";
 
 export default function ManageDetails({myAddress, signer, provider, activeKey}) {
 
@@ -63,7 +64,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 <Nav.Link eventKey="withdraw" onClick={_ => navigate("/manage/" + address + "/withdraw")}>Withdraw</Nav.Link>
                             </Nav.Item>
                             <Nav.Item className={"leftTab"}>
-                                <Nav.Link eventKey="transactions" onClick={_ => navigate("/manage/" + address + "/transactions")}>Transactions</Nav.Link>
+                                <Nav.Link eventKey="proposals" onClick={_ => navigate("/manage/" + address + "/proposals")}>Proposals</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </Col>
@@ -78,8 +79,8 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                             <Tab.Pane eventKey="withdraw">
                                 Withdraw
                             </Tab.Pane>
-                            <Tab.Pane eventKey="transactions">
-                                Transactions
+                            <Tab.Pane eventKey="proposals">
+                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress}/>
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

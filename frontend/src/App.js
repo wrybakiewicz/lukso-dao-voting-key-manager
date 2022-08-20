@@ -44,7 +44,7 @@ export default function App() {
         <Route exact path="/manage/:address" element={tabManageComponent("overview")}/>
         <Route exact path="/manage/:address/deposit" element={tabManageComponent("deposit")}/>
         <Route exact path="/manage/:address/withdraw" element={tabManageComponent("withdraw")}/>
-        <Route exact path="/manage/:address/transactions" element={tabManageComponent("transactions")}/>
+        <Route exact path="/manage/:address/proposals" element={tabManageComponent("proposals")}/>
         <Route exact path="/deploy"
                element={<TabComponent active={"deploy"} provider={provider} signer={signer} manageComponent={() => {
                }}/>}/>
