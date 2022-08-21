@@ -1,3 +1,5 @@
+const displayShortAddress = address => displayAddress(address, false)
+
 const displayAddress = (address, showFull) => {
     if(!address) {
         return
@@ -10,4 +12,4 @@ const displayAddress = (address, showFull) => {
     return beginning + '...' + end
 }
 
-export {displayAddress}
+export {displayAddress, displayShortAddress}

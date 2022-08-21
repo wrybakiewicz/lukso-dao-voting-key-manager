@@ -1,7 +1,7 @@
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import {useEffect, useState} from "react";
-import {Button, ListGroup} from "react-bootstrap";
+import {Button, Table} from "react-bootstrap";
 import NewProposalTransfer from "./NewProposalTransfer";
 import "./ManageProposalList.css"
 import {ContractFactory, ethers} from "ethers";
@@ -53,11 +53,29 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         } else {
             return <div>
                 <div className={"bigManageSection bigInputFont"}>
-                Proposals
+                    Proposals
                 </div>
-                <ListGroup>
-                    {proposals.map(proposal => <Proposal proposal={proposal}/>)}
-                </ListGroup>
+                <div className={"manageSection"}>
+                    <div className={"inputFont proposalInfo"}>To create new proposal you need <span
+                        className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
+                        you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span>
+                    </div>
+                </div>
+                <Table striped hover variant="dark">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Details</th>
+                        <th>Created by</th>
+                        <th>Created at</th>
+                        <th>Votes</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {proposals.map(proposal => <Proposal proposal={proposal} governanceTokenSymbol={governanceTokenSymbol}/>)}
+                    </tbody>
+                </Table>
             </div>
         }
     }
@@ -109,8 +127,8 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
     }
 
     return <Row>
-        <Col sm={3}/>
-        <Col sm={8}>
+        <Col sm={1}/>
+        <Col sm={10}>
             <div>
                 {proposalList()}
                 {proposalInfo()}
