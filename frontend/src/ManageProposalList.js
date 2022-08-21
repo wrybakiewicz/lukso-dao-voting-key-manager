@@ -16,6 +16,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
     const [governanceTokenSymbol, setGovernanceTokenSymbol] = useState()
     const [tokensToCreateProposal, setTokensToCreateProposal] = useState()
+    const [minimumTokensToExecuteProposal, setMinimumTokensToExecuteProposal] = useState()
     const [tokenBalanceDeposited, setTokenBalanceDeposited] = useState()
 
     const initialize = () => {
@@ -27,6 +28,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
             contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
 
         })
+        contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
         contract.depositorsBalances(currentAddress)
             .then(balance => setTokenBalanceDeposited(balance))
         contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
@@ -56,9 +58,10 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                     Proposals
                 </div>
                 <div className={"manageSection"}>
-                    <div className={"inputFont proposalInfo"}>To create new proposal you need <span
-                        className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
-                        you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span>
+                    <div className={"inputFont proposalInfo"}>To proposal to be accepted it needs <span
+                        className={"proposalInfoValues"}>{ethers.utils.formatEther(minimumTokensToExecuteProposal)} ${governanceTokenSymbol}</span> and more <span
+                        className={"proposalInfoValues"}>Yes</span> than <span
+                        className={"proposalInfoValues"}>No</span> votes
                     </div>
                 </div>
                 <Table striped hover responsive variant="dark">
