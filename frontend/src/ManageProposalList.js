@@ -61,7 +61,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                         you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span>
                     </div>
                 </div>
-                <Table striped hover variant="dark">
+                <Table striped hover responsive variant="dark">
                     <thead>
                     <tr>
                         <th>#</th>
