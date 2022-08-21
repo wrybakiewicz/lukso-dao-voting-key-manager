@@ -9,7 +9,7 @@ import {ERC725YKeys} from "@lukso/lsp-smart-contracts/constants";
 import {toUtf8String} from "@ethersproject/strings";
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
 
-export default function ManageProposalList({contract, signer, currentAddress, provider}) {
+export default function ManageProposalList({contract, signer, currentAddress, provider, reloadCounter}) {
 
     const [proposals, setProposals] = useState()
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
@@ -33,7 +33,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
 
     useEffect(_ => {
         initialize()
-    }, [])
+    }, [reloadCounter])
 
     if (!proposals || !governanceTokenSymbol || !tokensToCreateProposal || !tokenBalanceDeposited) {
         return null

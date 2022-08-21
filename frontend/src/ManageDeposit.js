@@ -10,7 +10,7 @@ import {Button, InputGroup} from "react-bootstrap";
 import "./ManageDeposit.css"
 import {toast} from "react-toastify";
 
-export default function ManageDeposit({contract, signer, currentAddress}) {
+export default function ManageDeposit({contract, signer, currentAddress, reloadParent, reloadCounter}) {
 
     const [tokenContract, setTokenContract] = useState()
     const [depositInProgress, setDepositInProgress] = useState(false)
@@ -35,7 +35,7 @@ export default function ManageDeposit({contract, signer, currentAddress}) {
 
     useEffect(_ => {
         initialize()
-    }, [])
+    }, [reloadCounter])
 
     const maxDeposit = () => {
         setDepositInput(ethers.utils.formatEther(tokenBalance))
@@ -58,7 +58,9 @@ export default function ManageDeposit({contract, signer, currentAddress}) {
     const depositToContract = () => {
         console.log("Depositing: " + depositInput)
         setDepositInProgress(true)
-        const depositPromise = contract.deposit(ethers.utils.parseEther(depositInput)).then(_ => initialize()).catch(e => {
+        const depositPromise = contract.deposit(ethers.utils.parseEther(depositInput)).then(_ => {
+            reloadParent()
+        }).catch(e => {
             console.error(e)
             throw e
         }).finally(_ => {

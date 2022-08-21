@@ -17,14 +17,20 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
 
     const [isValidContract, setIsValidContract] = useState()
     const [contract, setContract] = useState()
+    const [reloadCounter, setReloadCounter] = useState(0)
 
     let {address} = useParams();
 
     useEffect(_ => {
         if (myAddress && signer && provider) {
+            console.log("Initializing Manage Details")
             updateIsValidContract().then(_ => updateContract())
         }
-    }, [myAddress, signer, provider])
+    }, [myAddress, signer, provider, reloadCounter])
+
+    const reload = () => {
+        setReloadCounter(reloadCounter + 1)
+    }
 
     const updateIsValidContract = async () => {
         if (ethers.utils.isAddress(address)) {
@@ -74,13 +80,13 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 <Overview contract={contract} provider={provider}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="deposit">
-                                <ManageDeposit contract={contract} signer={signer} currentAddress={myAddress}/>
+                                <ManageDeposit contract={contract} signer={signer} currentAddress={myAddress} reloadParent={reload} reloadCounter={reloadCounter}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="withdraw">
                                 Withdraw
                             </Tab.Pane>
                             <Tab.Pane eventKey="proposals">
-                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress} provider={provider}/>
+                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress} provider={provider} reloadCounter={reloadCounter}/>
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
