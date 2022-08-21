@@ -74,7 +74,6 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                         <th>Details</th>
                         <th>Created by</th>
                         <th>Votes</th>
-                        <th>Execution</th>
                         <th>Actions</th>
                     </tr>
                     </thead>

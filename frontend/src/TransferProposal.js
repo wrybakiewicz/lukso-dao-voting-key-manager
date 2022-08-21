@@ -80,7 +80,6 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             to {link(proposal.to)}</td>
         <td className="align-middle">{link(proposal.createdBy)}</td>
         <td className="align-middle">{voteProgress()}</td>
-        <td className="align-middle"></td>
         <td className="align-middle">{voteYesButton} {voteNoButton}</td>
     </tr>
 }
