@@ -54,19 +54,28 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                 Proposals:
                 <ListGroup>
                     {proposals.map((proposal) => <ListGroup.Item className="d-flex justify-content-between pt-3"
-                                                                 key={proposal.id}>
-                        {proposal.id}
+                                                                 key={proposal.id.toNumber()}>
+                        {proposal.id.toNumber()}
                     </ListGroup.Item>)}
                 </ListGroup>
             </div>
         }
     }
 
+    const proposalInfo = () =>
+        <div className={"manageSection"}>
+            <div className={"inputFont proposalInfo"}>To create new proposal you need <span
+                className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
+                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span>
+            </div>
+        </div>
+
+
     const addNewProposalButton = () => {
         if (!addNewProposalOpened) {
-            return <div className={"manageSection"}>
-                <div className={"inputFont proposalInfo"}>To create new proposal you need <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited, you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span></div>
-                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(true)} disabled={tokensToCreateProposal.gte(tokenBalanceDeposited)}>
+            return <div>
+                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(true)}
+                        disabled={tokensToCreateProposal.gt(tokenBalanceDeposited)}>
                     Add new proposal
                 </Button>
             </div>
@@ -77,7 +86,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
 
     const addNewProposalCloseButton = () => {
         if (addNewProposalOpened) {
-            return <div className={"manageSection"}>
+            return <div>
                 <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(false)}>
                     Forget this proposal
                 </Button>
@@ -91,7 +100,8 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
     const newProposal = () => {
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
-                <NewProposalTransfer contract={contract} signer={signer} provider={provider} proposalCreated={proposalCreated}/>
+                <NewProposalTransfer contract={contract} signer={signer} provider={provider}
+                                     proposalCreated={proposalCreated}/>
             </div>
         } else {
             return null
@@ -103,6 +113,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         <Col sm={8}>
             <div>
                 {proposalList()}
+                {proposalInfo()}
                 {addNewProposalButton()}
                 {addNewProposalCloseButton()}
                 {newProposal()}

@@ -7,6 +7,7 @@ import {toast} from "react-toastify";
 
 export default function NewProposalTransfer({contract, signer, provider, proposalCreated}) {
 
+    const [creatingProposalInProgress, setCreatingProposalInProgress] = useState(false)
     const [receiverAddress, setReceiverAddress] = useState('')
     const [amount, setAmount] = useState('')
     const [currentBalance, setCurrentBalance] = useState()
@@ -28,12 +29,13 @@ export default function NewProposalTransfer({contract, signer, provider, proposa
 
     const createProposal = () => {
         console.log("Creating proposal amount: " + amount + " address: " + receiverAddress)
+        setCreatingProposalInProgress(true)
         const createProposalPromise = contract.createProposal(0, receiverAddress, ethers.utils.parseEther(amount), "0x")
             .then(_ => proposalCreated())
             .catch(e => {
                 console.error(e)
                 throw e
-            })
+            }).finally(_ => setCreatingProposalInProgress(false))
 
         toast.promise(createProposalPromise, {
             pending: 'Creating LXYt transfer proposal',
@@ -79,7 +81,7 @@ export default function NewProposalTransfer({contract, signer, provider, proposa
     </div>
 
     const createProposalButton = () => <div className={"createProposalButton"}>
-        <Button variant="outline-dark" onClick={() => createProposal()} disabled={!canCreateProposal()}>
+        <Button variant="outline-dark" onClick={() => createProposal()} disabled={!canCreateProposal() || creatingProposalInProgress}>
             Create proposal
         </Button>
     </div>
