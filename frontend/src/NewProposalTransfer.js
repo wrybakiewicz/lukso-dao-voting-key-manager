@@ -49,7 +49,7 @@ export default function NewProposalTransfer({contract, signer, provider, proposa
     }
 
     const currentBalanceSection = () => <div className={"manageSection"}>
-        <div className={"inputFont"}>Current LYXt balance</div>
+        <div className={"inputFont"}>Current DAO LYXt balance</div>
         <div className={"overviewValue"}>{ethers.utils.formatEther(currentBalance)}</div>
     </div>
 

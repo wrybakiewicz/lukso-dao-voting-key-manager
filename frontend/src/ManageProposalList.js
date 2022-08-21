@@ -8,6 +8,7 @@ import {ContractFactory, ethers} from "ethers";
 import {ERC725YKeys} from "@lukso/lsp-smart-contracts/constants";
 import {toUtf8String} from "@ethersproject/strings";
 import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+import Proposal from "./Proposal";
 
 export default function ManageProposalList({contract, signer, currentAddress, provider, reloadCounter}) {
 
@@ -51,12 +52,11 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
             </div>
         } else {
             return <div>
-                Proposals:
+                <div className={"bigManageSection bigInputFont"}>
+                Proposals
+                </div>
                 <ListGroup>
-                    {proposals.map((proposal) => <ListGroup.Item className="d-flex justify-content-between pt-3"
-                                                                 key={proposal.id.toNumber()}>
-                        {proposal.id.toNumber()}
-                    </ListGroup.Item>)}
+                    {proposals.map(proposal => <Proposal proposal={proposal}/>)}
                 </ListGroup>
             </div>
         }

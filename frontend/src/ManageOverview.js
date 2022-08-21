@@ -25,6 +25,7 @@ export default function Overview({contract, provider}) {
     const [tokensToCreateProposal, setTokensToCreateProposal] = useState()
     const [minimumTokensToExecuteProposal, setMinimumTokensToExecuteProposal] = useState()
     const [proposalTimeToVote, setProposalTimeToVote] = useState()
+    const [currentBalance, setCurrentBalance] = useState()
 
     const initialize = () => {
         contract.daoName().then(name => setDaoName(name))
@@ -36,7 +37,10 @@ export default function Overview({contract, provider}) {
             contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
             contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
         })
-        contract.account().then(address => setDaoAccountAddress(address))
+        contract.account().then(address => {
+            setDaoAccountAddress(address)
+            provider.getBalance(address).then(balance => setCurrentBalance(balance))
+        })
         contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(ethers.utils.formatEther(tokens)))
         contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(ethers.utils.formatEther(tokens)))
         contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
@@ -72,13 +76,18 @@ export default function Overview({contract, provider}) {
     }
 
     if (!daoName || !governanceTokenAddress || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress
-        || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address) {
+        || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address || !currentBalance) {
         return null
     }
 
     const name = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Name</div>
         <div className={"overviewValue"}>{daoName}</div>
+    </div>
+
+    const currentBalanceSection = () => <div className={"manageSection"}>
+        <div className={"inputFont"}>Current LYXt balance</div>
+        <div className={"overviewValue"}>{ethers.utils.formatEther(currentBalance)}</div>
     </div>
 
     const governanceToken = () => <div className={"manageSection"}>
@@ -124,6 +133,7 @@ export default function Overview({contract, provider}) {
         <Col sm={3}/>
         <Col sm={6}>
             {name()}
+            {currentBalanceSection()}
             {tokensToCreateProposalDetails()}
             {minimumTokensToExecuteProposalDetails()}
             {proposalTimeToVoteDetails()}
