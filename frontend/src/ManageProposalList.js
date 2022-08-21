@@ -18,6 +18,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
     const [tokensToCreateProposal, setTokensToCreateProposal] = useState()
     const [minimumTokensToExecuteProposal, setMinimumTokensToExecuteProposal] = useState()
     const [tokenBalanceDeposited, setTokenBalanceDeposited] = useState()
+    const [proposalTimeToVote, setProposalTimeToVote] = useState()
 
     const initialize = () => {
         contract.getProposals().then(proposals => {
@@ -32,6 +33,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         contract.depositorsBalances(currentAddress)
             .then(balance => setTokenBalanceDeposited(balance))
         contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
+        contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
     }
 
     useEffect(_ => {
@@ -68,15 +70,18 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th>Status</th>
                         <th>Details</th>
                         <th>Created by</th>
-                        <th>Created at</th>
                         <th>Votes</th>
+                        <th>Execution</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {proposals.map(proposal => <Proposal proposal={proposal} governanceTokenSymbol={governanceTokenSymbol}/>)}
+                    {proposals.map(proposal => <Proposal key={proposal.id.toNumber()} proposal={proposal}
+                                                         governanceTokenSymbol={governanceTokenSymbol}
+                                                         contract={contract} proposalTimeToVote={proposalTimeToVote}/>)}
                     </tbody>
                 </Table>
             </div>

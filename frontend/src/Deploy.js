@@ -31,10 +31,12 @@ export default function Deploy({provider, signer}) {
             minimumTokensToExecuteProposal + " proposalTimeToVote: " + proposalTimeToVote + " proposalTimeToVoteUnit: " +
             proposalTimeToVoteUnit)
         setDeployInProgress(true)
-        const proposalTimeToVoteInSeconds = getProposalTimeToVoteInSeconds(proposalTimeToVote, proposalTimeToVoteUnit)
         const contractFactory = ContractFactory.fromSolidity(DAOVotingManager, signer)
+        const proposalTimeToVoteInSeconds = getProposalTimeToVoteInSeconds(proposalTimeToVote, proposalTimeToVoteUnit)
         const tokensNumberToCreateProposalValue = (tokensNumberToCreateProposal * (10 ** 18)).toString()
         const minimumTokensToExecuteProposalValue = (minimumTokensToExecuteProposal * (10 ** 18)).toString()
+        console.log("Formatted proposalTimeToVoteInSeconds: " + proposalTimeToVoteInSeconds + " tokensNumberToCreateProposalValueL " +
+            tokensNumberToCreateProposalValue + " minimumTokensToExecuteProposalValue: " + minimumTokensToExecuteProposalValue)
         const deployPromise = contractFactory.deploy(governanceTokenAddress, daoNameInput,
             tokensNumberToCreateProposalValue, minimumTokensToExecuteProposalValue,
             proposalTimeToVoteInSeconds).then(async result => {
@@ -64,11 +66,12 @@ export default function Deploy({provider, signer}) {
 
 
     const getProposalTimeToVoteInSeconds = (proposalTimeToVote, proposalTimeToVoteUnit) => {
-        if (proposalTimeToVoteUnit === 1) {
+        console.log(proposalTimeToVoteUnit)
+        if (proposalTimeToVoteUnit.toString() === "1") {
             return 60 * proposalTimeToVote
-        } else if (proposalTimeToVoteUnit === 2) {
+        } else if (proposalTimeToVoteUnit.toString() === "2") {
             return 60 * 60 * proposalTimeToVote
-        } else if (proposalTimeToVoteUnit === 3) {
+        } else if (proposalTimeToVoteUnit.toString() === "3") {
             return 60 * 60 * 60 * proposalTimeToVote
         }
     }
