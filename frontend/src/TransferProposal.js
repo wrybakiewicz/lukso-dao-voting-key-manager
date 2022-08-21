@@ -13,11 +13,11 @@ export default function TransferProposal({proposal, governanceTokenSymbol}) {
 
     const createdAt = moment.unix(proposal.createdAt).format("Do MMMM YYYY");
 
-    const voteYesButton = <Button variant="outline-dark">
+    const voteYesButton = <Button variant="outline-dark" size="sm">
         Vote Yes
     </Button>
 
-    const voteNoButton = <Button variant="outline-dark">
+    const voteNoButton = <Button variant="outline-dark" size="sm">
         Vote No
     </Button>
 
@@ -30,12 +30,12 @@ export default function TransferProposal({proposal, governanceTokenSymbol}) {
             <ProgressBar animated striped variant="danger" now={10} key={2} label={noVotes}/>
         </ProgressBar>
     </div>
-    return <tr key={proposal.id.toNumber()}>
-        <td>{proposal.id.toNumber()}</td>
-        <td>Transfer {ethers.utils.formatEther(proposal.value)} $LXYt to {link(proposal.to)}</td>
-        <td>{link(proposal.createdBy)}</td>
-        <td>{createdAt}</td>
-        <td>{voteProgress}</td>
-        <td>{voteYesButton} {voteNoButton}</td>
+    return <tr key={proposal.id.toNumber()} className={"tableRowCenter"}>
+        <td className="align-middle">{proposal.id.toNumber()}</td>
+        <td className="align-middle">Transfer {ethers.utils.formatEther(proposal.value)} $LXYt to {link(proposal.to)}</td>
+        <td className="align-middle">{link(proposal.createdBy)}</td>
+        <td className="align-middle">{createdAt}</td>
+        <td className="align-middle">{voteProgress}</td>
+        <td className="align-middle">{voteYesButton} {voteNoButton}</td>
     </tr>
 }
