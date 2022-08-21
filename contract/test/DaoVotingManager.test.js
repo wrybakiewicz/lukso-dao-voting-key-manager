@@ -1,5 +1,5 @@
 const {expect} = require("chai");
-const {ethers, waffle} = require("hardhat");
+const {ethers} = require("hardhat");
 const {time} = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("DaoVotingManager", () => {
@@ -286,6 +286,8 @@ describe("DaoVotingManager", () => {
         const latestTime1 = await time.latest()
 
         await daoVotingManager.vote(1, true)
+        await time.increase(31);
+        await daoVotingManager.execute(1)
 
         expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 1)).to.be.equal(1)
         expect(await daoVotingManager.addressToLastVotedProposalId(owner.address)).to.be.equal(1)
@@ -336,6 +338,11 @@ describe("DaoVotingManager", () => {
         await daoVotingManager.connect(address1).vote(1, false)
         await daoVotingManager.vote(2, true)
         await daoVotingManager.connect(address1).vote(2, true)
+
+        await time.increase(31);
+
+        await expect(daoVotingManager.execute(1)).to.be.revertedWith("Yes vote must be >= minimum votes to execute")
+        await daoVotingManager.execute(2)
 
         expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 1)).to.be.equal(1)
         expect(await daoVotingManager.addressToProposalIdToVote(address1.address, 1)).to.be.equal(2)
@@ -422,6 +429,8 @@ describe("DaoVotingManager", () => {
         await daoVotingManager.createProposal(operation, to, value, payload)
         await owner.sendTransaction({to: await daoVotingManager.account(), value: ethers.utils.parseEther("1.0")})
         await daoVotingManager.vote(1, true)
+        await time.increase(31);
+        await daoVotingManager.execute(1)
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("4.0"))
 
@@ -429,6 +438,55 @@ describe("DaoVotingManager", () => {
         await daoVotingManager.withdraw()
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("10.0"))
+    });
+
+    it("should fail to execute proposal two times", async () => {
+        const [owner, address1, address2] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.transfer(owner.address, address1.address, ethers.utils.parseEther("5.0"), true, "0x")
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("3.0"))
+        await digitalAsset.connect(address1).authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.connect(address1).deposit(ethers.utils.parseEther("2.0"))
+        await owner.sendTransaction({to: await daoVotingManager.account(), value: ethers.utils.parseEther("2.0")})
+
+        const operation = 0
+        const to1 = address2.address
+        const value1 = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to1, value1, payload)
+        const latestTime1 = await time.latest()
+
+        await daoVotingManager.vote(1, true)
+        await daoVotingManager.connect(address1).vote(1, true)
+
+        await time.increase(31);
+
+        await daoVotingManager.execute(1)
+
+        expect(await daoVotingManager.addressToProposalIdToVote(owner.address, 1)).to.be.equal(1)
+        expect(await daoVotingManager.addressToProposalIdToVote(address1.address, 1)).to.be.equal(1)
+
+
+        const proposals = await daoVotingManager.getProposals()
+        expect(proposals.length).to.be.equal(1)
+
+        expect(proposals[0].id).to.be.equal(1)
+        expect(proposals[0].createdBy).to.be.equal(owner.address)
+        expect(proposals[0].createdAt).to.be.equal(latestTime1)
+        expect(proposals[0].operation).to.be.equal(operation)
+        expect(proposals[0].to).to.be.equal(to1)
+        expect(proposals[0].value).to.be.equal(value1)
+        expect(proposals[0].payload).to.be.equal(payload)
+        expect(proposals[0].yesVotes).to.be.equal(ethers.utils.parseEther("5.0"))
+        expect(proposals[0].noVotes).to.be.equal(0)
+        expect(proposals[0].status).to.be.equal(1)
+
+        await expect(daoVotingManager.execute(1)).to.be.revertedWith("Proposal status must be PENDING")
     });
 
 })

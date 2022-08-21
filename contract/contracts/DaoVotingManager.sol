@@ -73,7 +73,7 @@ contract DaoVotingManager {
         proposalIdCounter.increment();
     }
 
-    function vote(uint _proposalId, bool vote) public {
+    function vote(uint _proposalId, bool _vote) public {
         require(depositorsBalances[msg.sender] > 0, "Address must have some deposit");
         require(addressToProposalIdToVote[msg.sender][_proposalId] == Vote.PENDING, "Address already voted");
         Proposal memory proposal = proposalIdToProposal[_proposalId];
@@ -85,7 +85,7 @@ contract DaoVotingManager {
         uint senderBalance = depositorsBalances[msg.sender];
         uint _yesVotes = proposal.yesVotes;
         uint _noVotes = proposal.noVotes;
-        if (vote) {
+        if (_vote) {
             _yesVotes += senderBalance;
             proposal.yesVotes = _yesVotes;
             addressToProposalIdToVote[msg.sender][_proposalId] = Vote.YES;
@@ -94,13 +94,21 @@ contract DaoVotingManager {
             proposal.noVotes = _noVotes;
             addressToProposalIdToVote[msg.sender][_proposalId] = Vote.NO;
         }
+        proposalIdToProposal[_proposalId] = proposal;
+    }
 
-        if (_yesVotes > _noVotes && _yesVotes >= minTokensToExecuteProposal) {
-            try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
-                proposal.status = Status.EXECUTED;
-            } catch {
-                proposal.status = Status.EXECUTION_FAILED;
-            }
+    function execute(uint _proposalId) public {
+        Proposal memory proposal = proposalIdToProposal[_proposalId];
+        require(proposal.createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Too early to execute");
+        uint _yesVotes = proposal.yesVotes;
+        require(_yesVotes > proposal.noVotes, "Yes vote must be > no votes");
+        require(_yesVotes >= minTokensToExecuteProposal, "Yes vote must be >= minimum votes to execute");
+        require(proposal.status == Status.PENDING, "Proposal status must be PENDING");
+
+        try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
+            proposal.status = Status.EXECUTED;
+        } catch {
+            proposal.status = Status.EXECUTION_FAILED;
         }
         proposalIdToProposal[_proposalId] = proposal;
     }
