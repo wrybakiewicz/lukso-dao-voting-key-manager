@@ -49,6 +49,10 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         setAddNewProposalOpened(false)
     }
 
+    const voteSent = () => {
+        initialize()
+    }
+
     const proposalList = () => {
         if (proposals.length === 0) {
             return <div className={"bigManageSection bigInputFont"}>
@@ -80,7 +84,8 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                     <tbody>
                     {proposals.map(proposal => <Proposal key={proposal.id.toNumber()} proposal={proposal}
                                                          governanceTokenSymbol={governanceTokenSymbol}
-                                                         contract={contract} proposalTimeToVote={proposalTimeToVote}/>)}
+                                                         contract={contract} proposalTimeToVote={proposalTimeToVote}
+                                                         voteSent={voteSent}/>)}
                     </tbody>
                 </Table>
             </div>

@@ -1,13 +1,12 @@
 import "./Proposal.css"
 import {BigNumber, ethers} from "ethers";
-import moment from "moment";
 import {Button, ProgressBar} from "react-bootstrap";
 import {displayShortAddress} from "./ResponsiveUtils";
 import "./TransferProposal.css"
 import {toast} from "react-toastify";
 import EndingIn from "./EndingIn";
 
-export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote}) {
+export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, voteSent}) {
 
     const getYesToNoVotes = () => {
         const sumVotes = proposal.yesVotes.add(proposal.noVotes)
@@ -28,6 +27,9 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const voteYes = () => {
         const voteYesPromise = contract.vote(proposal.id, true)
+            .then(_ => {
+                voteSent()
+            })
             .catch(e => {
                 console.error(e)
                 throw e
@@ -42,6 +44,9 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const voteNo = () => {
         const voteYesPromise = contract.vote(proposal.id, false)
+            .then(_ => {
+                voteSent()
+            })
             .catch(e => {
                 console.error(e)
                 throw e
