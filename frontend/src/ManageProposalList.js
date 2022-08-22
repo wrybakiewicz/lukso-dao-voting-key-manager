@@ -91,9 +91,9 @@ export default function ManageProposalList({
 
     const proposalInfo = () =>
         <div className={"manageSection"}>
-            <div className={"inputFont proposalInfo"}>To create new proposal you need <span
+            <div className={"inputFont proposalInfo"}>To create proposal you need <span
                 className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
-                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)}</span>
+                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)} ${governanceTokenSymbol}</span>
             </div>
         </div>
 
