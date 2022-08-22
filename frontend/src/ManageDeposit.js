@@ -79,12 +79,12 @@ export default function ManageDeposit({
     </div>
 
     const balance = () => <div className={"manageSection inputFont"}>
-        Your <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> balance: <span
-        className={"depositValueInfo"}>{ethers.utils.formatEther(tokenBalance)}</span>
+        Your balance: <span
+        className={"depositValueInfo"}>{ethers.utils.formatEther(tokenBalance)} ${governanceTokenSymbol}</span>
     </div>
 
     const balanceInContractDetails = () => {
-        if (balanceInContract === BigNumber.from(0)) {
+        if (balanceInContract.eq(BigNumber.from(0))) {
             return <div className={"manageSection inputFont"}>
                 You don't have any <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> deposited in DAO
                 voting

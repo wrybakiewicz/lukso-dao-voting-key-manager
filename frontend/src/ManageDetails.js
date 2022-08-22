@@ -138,6 +138,14 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                    reload={() => initialize()}/>
     }
 
+    const manageWithdrawSection = () => {
+        if (!governanceTokenSymbol || !balanceInContract || !tokenBalance) {
+            return null
+        }
+        return <ManageWithdraw governanceTokenSymbol={governanceTokenSymbol} balanceInContract={balanceInContract}
+                               tokenBalance={tokenBalance} contract={contract} reload={() => initialize()}/>
+    }
+
     if (isValidContract && contract) {
         return <div className={"manageDetails"}>
             <Tab.Container activeKey={activeKey}>
@@ -171,7 +179,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 {manageDetailsSection()}
                             </Tab.Pane>
                             <Tab.Pane eventKey="withdraw">
-                                <ManageWithdraw/>
+                                {manageWithdrawSection()}
                             </Tab.Pane>
                             <Tab.Pane eventKey="proposals">
                                 {manageProposalListSection()}
