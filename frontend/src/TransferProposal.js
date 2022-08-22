@@ -19,7 +19,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const getNoToYesVotes = () => {
         if(proposal.noVotes.gt(0)) {
-            BigNumber.from(100).sub(getYesToNoVotes())
+            return BigNumber.from(100).sub(getYesToNoVotes())
         } else {
             return 0
         }
@@ -73,8 +73,8 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const voteProgress = () => <div>
         <ProgressBar animated className={"votesProgressBar"}>
-            <ProgressBar animated striped variant="success" now={getYesToNoVotes()} key={1} label={ethers.utils.formatEther(proposal.yesVotes) + governanceTokenSymbol}/>
-            <ProgressBar animated striped variant="danger" now={getNoToYesVotes()} key={2} label={ethers.utils.formatEther(proposal.noVotes) + {governanceTokenSymbol}}/>
+            <ProgressBar animated striped variant="success" now={getYesToNoVotes()} key={1} label={ethers.utils.formatEther(proposal.yesVotes) + " $" + governanceTokenSymbol}/>
+            <ProgressBar animated striped variant="danger" now={getNoToYesVotes()} key={2} label={ethers.utils.formatEther(proposal.noVotes) + " $" + governanceTokenSymbol}/>
         </ProgressBar>
     </div>
 
