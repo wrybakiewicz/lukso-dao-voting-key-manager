@@ -10,6 +10,7 @@ import "./ManageDetails.css"
 import Overview from "./ManageOverview";
 import ManageDeposit from "./ManageDeposit";
 import ManageProposalList from "./ManageProposalList";
+import ManageWithdraw from "./ManageWithdraw";
 
 export default function ManageDetails({myAddress, signer, provider, activeKey}) {
 
@@ -83,7 +84,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 <ManageDeposit contract={contract} signer={signer} currentAddress={myAddress} reloadParent={reload} reloadCounter={reloadCounter}/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="withdraw">
-                                Withdraw
+                                <ManageWithdraw />
                             </Tab.Pane>
                             <Tab.Pane eventKey="proposals">
                                 <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress} provider={provider} reloadCounter={reloadCounter}/>
