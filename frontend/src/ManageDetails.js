@@ -134,7 +134,8 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                    governanceTokenSymbol={governanceTokenSymbol}
                                    tokensToCreateProposal={tokensToCreateProposal}
                                    minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
-                                   balanceInContract={balanceInContract} proposalTimeToVote={proposalTimeToVote}/>
+                                   balanceInContract={balanceInContract} proposalTimeToVote={proposalTimeToVote}
+                                   reload={() => initialize()}/>
     }
 
     if (isValidContract && contract) {

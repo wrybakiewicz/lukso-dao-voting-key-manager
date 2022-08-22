@@ -15,7 +15,8 @@ export default function ManageProposalList({
                                                tokensToCreateProposal,
                                                minimumTokensToExecuteProposal,
                                                proposalTimeToVote,
-                                               balanceInContract
+                                               balanceInContract,
+                                               reload
                                            }) {
 
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
@@ -79,7 +80,8 @@ export default function ManageProposalList({
                                                          contract={contract} proposalTimeToVote={proposalTimeToVote}
                                                          updateParent={() => initialize()}
                                                          currentAddress={currentAddress}
-                                                         minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}/>)}
+                                                         minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
+                                                         reload={reload}/>)}
                     </tbody>
                 </Table>
             </div>

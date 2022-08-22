@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 import moment from "moment";
 
 export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent,
-                                             currentAddress, minimumTokensToExecuteProposal}) {
+                                             currentAddress, minimumTokensToExecuteProposal, reload}) {
 
     const [isVoted, setIsVoted] = useState()
 
@@ -104,6 +104,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         const executePromise = contract.execute(proposal.id)
             .then(_ => {
                 updateParent()
+                reload()
             })
             .catch(e => {
                 console.error(e)
