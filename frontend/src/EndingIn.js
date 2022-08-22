@@ -1,15 +1,8 @@
 import moment from "moment";
 import {useEffect, useState} from "react";
+import {formatTime} from "./TimeUtils";
 
 export default function EndingIn({votingEnd, updateCantVote, proposal, canExecute}) {
-
-    const format = (number) => {
-        if (number < 10) {
-            return "0" + number
-        } else {
-            return number
-        }
-    }
 
     const getEndedStatus = () => {
         if(proposal.status === 2) {
@@ -30,26 +23,7 @@ export default function EndingIn({votingEnd, updateCantVote, proposal, canExecut
             updateCantVote()
             return getEndedStatus()
         } else {
-            const endingSeconds = votingEnd.diff(moment(), 'seconds')
-            if (endingSeconds < 60) {
-                return "Ending in " + format(endingSeconds)
-            } else {
-                const minutes = Math.floor(endingSeconds / 60)
-                const secondsEnding = endingSeconds % 60
-                if (minutes < 60) {
-                    return "Ending in " + format(minutes) + ":" + format(secondsEnding)
-                } else {
-                    const hours = Math.floor(minutes / 60)
-                    const minutesEnding = minutes % 60
-                    if (hours < 24) {
-                        return "Ending in " + format(hours) + ":" + format(minutesEnding) + ":" + format(secondsEnding)
-                    } else {
-                        const days = Math.floor(hours / 24)
-                        const hoursEnding = hours % 24
-                        return "Ending in " + format(days) + ":" + format(hoursEnding) + ":" + format(minutesEnding) + ":" + format(secondsEnding)
-                    }
-                }
-            }
+            return "Ending in " + formatTime(votingEnd)
         }
     }
 

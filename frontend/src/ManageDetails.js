@@ -36,6 +36,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     const [tokenBalance, setTokenBalance] = useState()
     const [balanceInContract, setBalanceInContract] = useState()
     const [authorizedAmount, setAuthorizedAmount] = useState()
+    const [possibleWithdrawTime, setPossibleWithdrawTime] = useState()
 
     let {address} = useParams();
 
@@ -61,6 +62,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
         contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
         contract.depositorsBalances(myAddress)
             .then(balance => setBalanceInContract(balance))
+        contract.getPossibleWithdrawTime().then(time => setPossibleWithdrawTime(time.toNumber()))
     }
 
     const initialize = () => {
@@ -138,11 +140,12 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const manageWithdrawSection = () => {
-        if (!governanceTokenSymbol || !balanceInContract || !tokenBalance) {
+        if (!governanceTokenSymbol || !balanceInContract || !tokenBalance || !possibleWithdrawTime) {
             return null
         }
         return <ManageWithdraw governanceTokenSymbol={governanceTokenSymbol} balanceInContract={balanceInContract}
-                               tokenBalance={tokenBalance} contract={contract} reload={() => initialize()}/>
+                               tokenBalance={tokenBalance} contract={contract} reload={() => initialize()}
+                               possibleWithdrawTime={possibleWithdrawTime}/>
     }
 
     if (isValidContract && contract) {

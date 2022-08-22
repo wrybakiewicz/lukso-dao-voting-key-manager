@@ -5,8 +5,17 @@ import Form from "react-bootstrap/Form";
 import "./ManageWithdraw.css"
 import {useState} from "react";
 import {toast} from "react-toastify";
+import moment from "moment";
+import {formatTime} from "./TimeUtils";
 
-export default function ManageWithdraw({contract, governanceTokenSymbol, balanceInContract, tokenBalance, reload}) {
+export default function ManageWithdraw({
+                                           contract,
+                                           governanceTokenSymbol,
+                                           balanceInContract,
+                                           tokenBalance,
+                                           reload,
+                                           possibleWithdrawTime
+                                       }) {
 
     const [withdrawInput, setWithdrawInput] = useState('')
     const [withdrawalInProgress, setWithdrawalInProgress] = useState(false)
@@ -30,8 +39,7 @@ export default function ManageWithdraw({contract, governanceTokenSymbol, balance
     }
 
     const canWithdraw = () => {
-
-        return withdrawInput > 0 && ethers.utils.parseEther(withdrawInput).lte(balanceInContract)
+        return withdrawInput > 0 && ethers.utils.parseEther(withdrawInput).lte(balanceInContract) && moment.unix(possibleWithdrawTime).isBefore(moment())
     }
 
     const maxWithdraw = () => {
@@ -74,6 +82,15 @@ export default function ManageWithdraw({contract, governanceTokenSymbol, balance
         </InputGroup>
     </div>
 
+    const withdrawTimer = () => {
+        if (!moment.unix(possibleWithdrawTime).isBefore(moment())) {
+            const inTime = formatTime(moment.unix(possibleWithdrawTime))
+            return <div className={"manageSection inputFont"}>You will be able to withdraw in <span className={"depositValueInfo"}>{inTime}</span></div>
+        } else {
+            return null
+        }
+    }
+
     const withdrawButton = () => {
         return <div className={"withdrawButton"}>
             <Button variant="outline-dark" onClick={withdrawFromContract}
@@ -90,6 +107,7 @@ export default function ManageWithdraw({contract, governanceTokenSymbol, balance
             {balanceInContractDetails()}
             {balance()}
             {withdraw()}
+            {withdrawTimer()}
             {withdrawButton()}
         </Col>
     </Row>
