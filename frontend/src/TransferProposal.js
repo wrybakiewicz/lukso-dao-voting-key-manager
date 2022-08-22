@@ -8,7 +8,7 @@ import EndingIn from "./EndingIn";
 import {useState} from "react";
 import moment from "moment";
 
-export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, voteSent}) {
+export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent}) {
 
     const votingEnd = moment.unix(proposal.createdAt).add(proposalTimeToVote, 'seconds')
 
@@ -17,6 +17,14 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }
 
     const [canVote, setCanVote] = useState(calculateCanVote())
+
+    const isYesWinning = () => {
+        return proposal.yesVotes.gt(proposal.noVotes)
+    }
+
+    const isStatusPending = () => {
+        return proposal.status === 0
+    }
 
     const getYesToNoVotes = () => {
         const sumVotes = proposal.yesVotes.add(proposal.noVotes)
@@ -38,7 +46,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const voteYes = () => {
         const voteYesPromise = contract.vote(proposal.id, true)
             .then(_ => {
-                voteSent()
+                updateParent()
             })
             .catch(e => {
                 console.error(e)
@@ -55,7 +63,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const voteNo = () => {
         const voteYesPromise = contract.vote(proposal.id, false)
             .then(_ => {
-                voteSent()
+                updateParent()
             })
             .catch(e => {
                 console.error(e)
@@ -66,6 +74,23 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             pending: 'Voting No',
             success: '🦀 Voted No 🦀',
             error: '☠ Vote No failure ☠'
+        })
+    }
+
+    const execute = () => {
+        const executePromise = contract.execute(proposal.id)
+            .then(_ => {
+                updateParent()
+            })
+            .catch(e => {
+                console.error(e)
+                throw e
+            })
+
+        toast.promise(executePromise, {
+            pending: 'Executing proposal',
+            success: '🦀 Executed proposal 🦀',
+            error: '☠ Execute proposal failed ☠'
         })
     }
 
@@ -80,6 +105,14 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         Vote No
     </Button>
 
+    const executeButton = <Button variant="outline-dark" size="sm" onClick={execute} disabled={canVote || !isYesWinning() || !isStatusPending()}>
+        Execute
+    </Button>
+
+    const buttons = () => <div className={"tableButtons"}>
+        {voteYesButton} {voteNoButton} {executeButton}
+    </div>
+
 
     const voteProgress = () => <div>
         <ProgressBar animated className={"votesProgressBar"}>
@@ -88,13 +121,13 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         </ProgressBar>
     </div>
 
-    return <tr className={"tableRowCenter"}>
+    return <tr>
         <td className="align-middle">{proposal.id.toNumber()}</td>
         <td className="align-middle"><EndingIn votingEnd={votingEnd} updateCantVote={() => setCanVote(false)}/></td>
         <td className="align-middle">Transfer {ethers.utils.formatEther(proposal.value)} $LXYt
             to {link(proposal.to)}</td>
         <td className="align-middle">{link(proposal.createdBy)}</td>
         <td className="align-middle">{voteProgress()}</td>
-        <td className="align-middle">{voteYesButton} {voteNoButton}</td>
+        <td className="align-middle">{buttons()}</td>
     </tr>
 }

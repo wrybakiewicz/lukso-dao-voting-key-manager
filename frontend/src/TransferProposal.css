@@ -2,7 +2,8 @@
     max-width: 200px;
 }
 
-.tableRowCenter {
-    /*display: flex;*/
-    /*align-items: center;*/
+.tableButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
