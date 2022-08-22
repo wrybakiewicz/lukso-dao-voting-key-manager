@@ -12,6 +12,8 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
                                              currentAddress, minimumTokensToExecuteProposal, reload, balanceInContract}) {
 
     const [isVoted, setIsVoted] = useState()
+    const [executeInProgress, setExecuteInProgress] = useState(false)
+    const [voteInProgress, setVoteInProgress] = useState(false)
 
     const initialize = () => {
         contract.addressToProposalIdToVote(currentAddress, proposal.id).then(vote => {
@@ -67,6 +69,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }
 
     const voteYes = () => {
+        setVoteInProgress(true)
         const voteYesPromise = contract.vote(proposal.id, true)
             .then(_ => {
                 updateParent()
@@ -75,7 +78,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             .catch(e => {
                 console.error(e)
                 throw e
-            })
+            }).finally(_ => setVoteInProgress(false))
 
         toast.promise(voteYesPromise, {
             pending: 'Voting Yes',
@@ -85,6 +88,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }
 
     const voteNo = () => {
+        setVoteInProgress(true)
         const voteYesPromise = contract.vote(proposal.id, false)
             .then(_ => {
                 updateParent()
@@ -93,7 +97,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             .catch(e => {
                 console.error(e)
                 throw e
-            })
+            }).finally(_ => setVoteInProgress(false))
 
         toast.promise(voteYesPromise, {
             pending: 'Voting No',
@@ -103,6 +107,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }
 
     const execute = () => {
+        setExecuteInProgress(true)
         const executePromise = contract.execute(proposal.id)
             .then(_ => {
                 updateParent()
@@ -111,7 +116,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             .catch(e => {
                 console.error(e)
                 throw e
-            })
+            }).finally(_ => setExecuteInProgress(false))
 
         toast.promise(executePromise, {
             pending: 'Executing proposal',
@@ -123,16 +128,16 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const link = (to) => <a className={"linkToExplorer"} target="_blank"
                             href={"https://explorer.execution.l16.lukso.network/address/" + to}>{displayShortAddress(to)}</a>
 
-    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted || balanceInContractIs0}>
+    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
         Vote Yes
     </Button>
 
-    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted || balanceInContractIs0}>
+    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
         Vote No
     </Button>
 
     const executeButton = <Button variant="outline-dark" size="sm" onClick={execute}
-                                  disabled={!canExecute()}>
+                                  disabled={!canExecute() || executeInProgress}>
         Execute
     </Button>
 
