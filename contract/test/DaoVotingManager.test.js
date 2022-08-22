@@ -392,7 +392,7 @@ describe("DaoVotingManager", () => {
         await daoVotingManager.createProposal(0, address1.address, ethers.utils.parseEther("1.0"), "0x")
         await daoVotingManager.vote(1, true)
 
-        const withdrawTx = daoVotingManager.withdraw()
+        const withdrawTx = daoVotingManager.withdraw(ethers.utils.parseEther("5.0"))
         await expect(withdrawTx).to.be.revertedWith("Cannot withdraw before: last voted proposal created at time + proposalTimeToVoteInSeconds")
     });
 
@@ -408,7 +408,7 @@ describe("DaoVotingManager", () => {
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("5.0"))
 
-        await daoVotingManager.withdraw()
+        await daoVotingManager.withdraw(ethers.utils.parseEther("5.0"))
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("10.0"))
     });
@@ -435,7 +435,7 @@ describe("DaoVotingManager", () => {
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("4.0"))
 
         await time.increase(31);
-        await daoVotingManager.withdraw()
+        await daoVotingManager.withdraw(ethers.utils.parseEther("6.0"))
 
         expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("10.0"))
     });
@@ -489,4 +489,39 @@ describe("DaoVotingManager", () => {
         await expect(daoVotingManager.execute(1)).to.be.revertedWith("Proposal status must be PENDING")
     });
 
+    it("should deposit and withdraw in 2 tranches", async () => {
+        const [owner] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+
+        await daoVotingManager.deposit(ethers.utils.parseEther("6.0"))
+        expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("4.0"))
+        expect(await daoVotingManager.depositorsBalances(owner.address)).to.be.equal(ethers.utils.parseEther("6.0"))
+
+        await daoVotingManager.withdraw(ethers.utils.parseEther("2.0"))
+        expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("6.0"))
+        expect(await daoVotingManager.depositorsBalances(owner.address)).to.be.equal(ethers.utils.parseEther("4.0"))
+
+        await daoVotingManager.withdraw(ethers.utils.parseEther("4.0"))
+        expect(await digitalAsset.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("10.0"))
+        expect(await daoVotingManager.depositorsBalances(owner.address)).to.be.equal(0)
+    });
+
+    it("should deposit and fail withdraw more than deposited", async () => {
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+
+        await daoVotingManager.deposit(ethers.utils.parseEther("6.0"))
+
+        const withdrawTx = daoVotingManager.withdraw(ethers.utils.parseEther("6.1"))
+        await expect(withdrawTx).to.be.revertedWith("Amount must be <= deposit")
+    });
 })
