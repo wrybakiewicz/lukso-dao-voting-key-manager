@@ -82,7 +82,7 @@ export default function ManageProposalList({
                                                          updateParent={() => initialize()}
                                                          currentAddress={currentAddress}
                                                          minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
-                                                         reload={reload}/>)}
+                                                         reload={reload} balanceInContract={balanceInContract}/>)}
                     </tbody>
                 </Table>
             </div>

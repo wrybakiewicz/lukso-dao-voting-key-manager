@@ -9,7 +9,7 @@ import {useEffect, useState} from "react";
 import moment from "moment";
 
 export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent,
-                                             currentAddress, minimumTokensToExecuteProposal, reload}) {
+                                             currentAddress, minimumTokensToExecuteProposal, reload, balanceInContract}) {
 
     const [isVoted, setIsVoted] = useState()
 
@@ -24,6 +24,8 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }, [])
 
     const votingEnd = moment.unix(proposal.createdAt).add(proposalTimeToVote, 'seconds')
+
+    const balanceInContractIs0 = balanceInContract.eq(BigNumber.from(0))
 
     const calculateCanVote = () => {
         return !votingEnd.isBefore(moment())
@@ -121,11 +123,11 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const link = (to) => <a className={"linkToExplorer"} target="_blank"
                             href={"https://explorer.execution.l16.lukso.network/address/" + to}>{displayShortAddress(to)}</a>
 
-    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted}>
+    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted || balanceInContractIs0}>
         Vote Yes
     </Button>
 
-    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted}>
+    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted || balanceInContractIs0}>
         Vote No
     </Button>
 
