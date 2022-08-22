@@ -30,7 +30,7 @@ export default function ManageWithdraw({contract, governanceTokenSymbol, balance
     }
 
     const canWithdraw = () => {
-        //TODO: calculate if can withdraw
+
         return withdrawInput > 0 && ethers.utils.parseEther(withdrawInput).lte(balanceInContract)
     }
 
@@ -78,7 +78,7 @@ export default function ManageWithdraw({contract, governanceTokenSymbol, balance
         return <div className={"withdrawButton"}>
             <Button variant="outline-dark" onClick={withdrawFromContract}
                     disabled={!canWithdraw() || withdrawalInProgress}>
-                Deposit
+                Withdraw
             </Button>
         </div>
     }

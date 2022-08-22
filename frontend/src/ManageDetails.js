@@ -21,7 +21,6 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
 
     const [isValidContract, setIsValidContract] = useState()
     const [contract, setContract] = useState()
-    const [reloadCounter, setReloadCounter] = useState(0)
 
     const [daoName, setDaoName] = useState()
     const [governanceTokenAddress, setGovernanceTokenAddress] = useState()
@@ -46,7 +45,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
             setGovernanceTokenAddress(tokenAddress)
             return tokenAddress
         }).then(tokenAddress => {
-            const daoGovernanceContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, provider)
+            const daoGovernanceContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, signer)
             setTokenContract(daoGovernanceContract)
             daoGovernanceContract.balanceOf(myAddress).then(addressBalance => setTokenBalance(addressBalance))
             daoGovernanceContract.isOperatorFor(contract.address, myAddress).then(tokens => setAuthorizedAmount(tokens))
@@ -130,7 +129,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
             return null
         }
         return <ManageProposalList contract={contract} currentAddress={myAddress}
-                                   currentBalance={currentBalance} reloadCounter={reloadCounter}
+                                   currentBalance={currentBalance}
                                    governanceTokenSymbol={governanceTokenSymbol}
                                    tokensToCreateProposal={tokensToCreateProposal}
                                    minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
