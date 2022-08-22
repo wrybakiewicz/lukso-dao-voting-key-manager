@@ -49,6 +49,6 @@ export default function ManageFind({address, signer, provider}) {
 
     return <div className={"manage"}>
         {findDao()}
-        {/*//TODO: list of your daos: fetch from frontend?*/}
+        {/*//TODO: list of your daos: fetch from backend?*/}
     </div>
 }
