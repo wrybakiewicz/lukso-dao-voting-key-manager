@@ -5,7 +5,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import {ethers} from "ethers";
 import {toast} from "react-toastify";
 
-export default function NewProposalTransfer({contract, proposalCreated, currentBalance}) {
+export default function NewProposalTransfer({contract, proposalCreated, currentBalance, updateCreatingProposal}) {
 
     const [creatingProposalInProgress, setCreatingProposalInProgress] = useState(false)
     const [receiverAddress, setReceiverAddress] = useState('')
@@ -18,12 +18,16 @@ export default function NewProposalTransfer({contract, proposalCreated, currentB
     const createProposal = () => {
         console.log("Creating proposal amount: " + amount + " address: " + receiverAddress)
         setCreatingProposalInProgress(true)
+        updateCreatingProposal(true)
         const createProposalPromise = contract.createProposal(0, receiverAddress, ethers.utils.parseEther(amount), "0x")
             .then(_ => proposalCreated())
             .catch(e => {
                 console.error(e)
                 throw e
-            }).finally(_ => setCreatingProposalInProgress(false))
+            }).finally(_ => {
+                setCreatingProposalInProgress(false)
+                updateCreatingProposal(false)
+            })
 
         toast.promise(createProposalPromise, {
             pending: 'Creating LXYt transfer proposal',

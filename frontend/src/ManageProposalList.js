@@ -21,6 +21,7 @@ export default function ManageProposalList({
 
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
     const [proposals, setProposals] = useState()
+    const [creatingProposalInProgress, setCreatingProposalInProgress] = useState(false)
 
     const initialize = () => {
         contract.getProposals().then(proposals => {
@@ -114,7 +115,7 @@ export default function ManageProposalList({
     const addNewProposalCloseButton = () => {
         if (addNewProposalOpened) {
             return <div>
-                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(false)}>
+                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(false)} disabled={creatingProposalInProgress}>
                     Forget this proposal
                 </Button>
             </div>
@@ -128,7 +129,7 @@ export default function ManageProposalList({
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
                 <NewProposalTransfer contract={contract} proposalCreated={proposalCreated}
-                                     currentBalance={currentBalance}/>
+                                     currentBalance={currentBalance} updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}/>
             </div>
         } else {
             return null
