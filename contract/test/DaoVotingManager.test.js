@@ -524,4 +524,34 @@ describe("DaoVotingManager", () => {
         const withdrawTx = daoVotingManager.withdraw(ethers.utils.parseEther("6.1"))
         await expect(withdrawTx).to.be.revertedWith("Amount must be <= deposit")
     });
+
+    it("should return getPossibleWithdrawTime when no proposals", async () => {
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+
+        expect(await daoVotingManager.getPossibleWithdrawTime()).to.be.equal(proposalTimeToVoteInSeconds)
+    });
+
+    it("should return getPossibleWithdrawTime when proposal created", async () => {
+        const [owner, address1] = await ethers.getSigners();
+        const daoName = "fashionDao"
+        const minTokensToCreateProposal = ethers.utils.parseEther("1.0")
+        const minTokensToExecuteProposal = ethers.utils.parseEther("5.0")
+        const proposalTimeToVoteInSeconds = 30
+        const {digitalAsset, daoVotingManager} = await deployContract(daoName, minTokensToCreateProposal, minTokensToExecuteProposal, proposalTimeToVoteInSeconds)
+        await digitalAsset.authorizeOperator(daoVotingManager.address, ethers.utils.parseEther("100.0"))
+        await daoVotingManager.deposit(ethers.utils.parseEther("6.0"))
+        const operation = 0
+        const to = address1.address
+        const value = ethers.utils.parseEther("1.0")
+        const payload = "0x"
+        await daoVotingManager.createProposal(operation, to, value, payload)
+        const latestTime = await time.latest()
+
+        expect(await daoVotingManager.getPossibleWithdrawTime()).to.be.equal(latestTime + proposalTimeToVoteInSeconds)
+    });
+
 })

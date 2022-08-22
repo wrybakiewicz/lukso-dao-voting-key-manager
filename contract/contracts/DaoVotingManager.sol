@@ -123,4 +123,9 @@ contract DaoVotingManager {
         }
         return result;
     }
+
+    function getPossibleWithdrawTime() public view returns (uint) {
+        uint lastVotedProposalId = addressToLastVotedProposalId[msg.sender];
+        return proposalIdToProposal[lastVotedProposalId].createdAt + proposalTimeToVoteInSeconds;
+    }
 }
