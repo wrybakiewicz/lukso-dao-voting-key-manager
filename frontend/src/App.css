@@ -18,3 +18,9 @@
 .inputFont {
     font-size: 150%;
 }
+
+.elementCentered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -73,8 +73,8 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                         <th>Status</th>
                         <th>Details</th>
                         <th>Created by</th>
-                        <th>Votes</th>
-                        <th>Actions</th>
+                        <th><div className={"elementCentered"}>Votes</div></th>
+                        <th><div className={"elementCentered"}>Actions</div></th>
                     </tr>
                     </thead>
                     <tbody>

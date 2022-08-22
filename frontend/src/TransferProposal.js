@@ -109,7 +109,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         Execute
     </Button>
 
-    const buttons = () => <div className={"tableButtons"}>
+    const buttons = () => <div className={"elementCentered"}>
         {voteYesButton} {voteNoButton} {executeButton}
     </div>
 
