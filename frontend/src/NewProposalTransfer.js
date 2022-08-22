@@ -5,23 +5,11 @@ import InfoIcon from "@mui/icons-material/Info";
 import {ethers} from "ethers";
 import {toast} from "react-toastify";
 
-export default function NewProposalTransfer({contract, signer, provider, proposalCreated}) {
+export default function NewProposalTransfer({contract, proposalCreated, currentBalance}) {
 
     const [creatingProposalInProgress, setCreatingProposalInProgress] = useState(false)
     const [receiverAddress, setReceiverAddress] = useState('')
     const [amount, setAmount] = useState('')
-    const [currentBalance, setCurrentBalance] = useState()
-
-    const initialize = () => {
-        contract.account().then(account => {
-            provider.getBalance(account).then(balance => setCurrentBalance(balance))
-        })
-
-    }
-
-    useEffect(_ => {
-        initialize()
-    }, [])
 
     const setMaxAmount = () => {
         setAmount(ethers.utils.formatEther(currentBalance))

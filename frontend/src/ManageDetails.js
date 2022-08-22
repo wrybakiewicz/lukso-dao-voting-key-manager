@@ -102,8 +102,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const overviewSection = () => {
-        if (!daoName || !governanceTokenAddress || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress
-            || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address || !currentBalance) {
+        if (!daoName || !governanceTokenAddress || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address || !currentBalance) {
             return null
         }
 
@@ -127,11 +126,11 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const manageProposalListSection = () => {
-        if (!governanceTokenSymbol || !tokensToCreateProposal || !balanceInContract || !proposalTimeToVote || !minimumTokensToExecuteProposal) {
+        if (!governanceTokenSymbol || !tokensToCreateProposal || !balanceInContract || !proposalTimeToVote || !minimumTokensToExecuteProposal || !currentBalance) {
             return null
         }
-        return <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress}
-                                   provider={provider} reloadCounter={reloadCounter}
+        return <ManageProposalList contract={contract} currentAddress={myAddress}
+                                   currentBalance={currentBalance} reloadCounter={reloadCounter}
                                    governanceTokenSymbol={governanceTokenSymbol}
                                    tokensToCreateProposal={tokensToCreateProposal}
                                    minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}

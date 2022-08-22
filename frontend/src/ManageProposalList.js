@@ -9,9 +9,8 @@ import Proposal from "./Proposal";
 
 export default function ManageProposalList({
                                                contract,
-                                               signer,
                                                currentAddress,
-                                               provider,
+                                               currentBalance,
                                                governanceTokenSymbol,
                                                tokensToCreateProposal,
                                                minimumTokensToExecuteProposal,
@@ -125,8 +124,8 @@ export default function ManageProposalList({
     const newProposal = () => {
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
-                <NewProposalTransfer contract={contract} signer={signer} provider={provider}
-                                     proposalCreated={proposalCreated}/>
+                <NewProposalTransfer contract={contract} proposalCreated={proposalCreated}
+                                     currentBalance={currentBalance}/>
             </div>
         } else {
             return null
