@@ -86,8 +86,8 @@ export default function Overview({contract, provider}) {
     </div>
 
     const currentBalanceSection = () => <div className={"manageSection"}>
-        <div className={"inputFont"}>Current LYXt balance</div>
-        <div className={"overviewValue"}>{ethers.utils.formatEther(currentBalance)}</div>
+        <div className={"inputFont"}>Current balance</div>
+        <div className={"overviewValue"}>{ethers.utils.formatEther(currentBalance)} LYXt</div>
     </div>
 
     const governanceToken = () => <div className={"manageSection"}>

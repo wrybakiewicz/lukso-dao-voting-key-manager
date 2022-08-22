@@ -81,7 +81,8 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                     {proposals.map(proposal => <Proposal key={proposal.id.toNumber()} proposal={proposal}
                                                          governanceTokenSymbol={governanceTokenSymbol}
                                                          contract={contract} proposalTimeToVote={proposalTimeToVote}
-                                                         updateParent={() => initialize()}/>)}
+                                                         updateParent={() => initialize()} currentAddress={currentAddress}
+                                                         minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}/>)}
                     </tbody>
                 </Table>
             </div>
@@ -99,7 +100,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
 
     const addNewProposalButton = () => {
         if (!addNewProposalOpened) {
-            return <div>
+            return <div className={"createNewProposalButton"}>
                 <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(true)}
                         disabled={tokensToCreateProposal.gt(tokenBalanceDeposited)}>
                     Add new proposal

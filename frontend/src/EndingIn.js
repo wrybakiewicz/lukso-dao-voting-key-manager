@@ -1,7 +1,7 @@
 import moment from "moment";
 import {useEffect, useState} from "react";
 
-export default function EndingIn({votingEnd, updateCantVote}) {
+export default function EndingIn({votingEnd, updateCantVote, proposal, canExecute}) {
 
     const format = (number) => {
         if (number < 10) {
@@ -11,11 +11,24 @@ export default function EndingIn({votingEnd, updateCantVote}) {
         }
     }
 
+    const getEndedStatus = () => {
+        if(proposal.status === 2) {
+            return "Execution failed"
+        } else if(proposal.status === 1) {
+            return "Executed"
+        } else {
+            if(canExecute()) {
+                return "Can execute"
+            } else {
+                return "Failed"
+            }
+        }
+    }
 
     const calculate = () => {
         if (votingEnd.isBefore(moment())) {
             updateCantVote()
-            return "Ended"
+            return getEndedStatus()
         } else {
             const endingSeconds = votingEnd.diff(moment(), 'seconds')
             if (endingSeconds < 60) {

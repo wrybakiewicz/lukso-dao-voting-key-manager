@@ -5,10 +5,23 @@ import {displayShortAddress} from "./ResponsiveUtils";
 import "./TransferProposal.css"
 import {toast} from "react-toastify";
 import EndingIn from "./EndingIn";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import moment from "moment";
 
-export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent}) {
+export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent,
+                                             currentAddress, minimumTokensToExecuteProposal}) {
+
+    const [isVoted, setIsVoted] = useState()
+
+    const initialize = () => {
+        contract.addressToProposalIdToVote(currentAddress, proposal.id).then(vote => {
+            setIsVoted(vote !== 0)
+        })
+    }
+
+    useEffect(_ => {
+        initialize()
+    }, [])
 
     const votingEnd = moment.unix(proposal.createdAt).add(proposalTimeToVote, 'seconds')
 
@@ -22,8 +35,16 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         return proposal.yesVotes.gt(proposal.noVotes)
     }
 
+    const isMinimumVotes = () => {
+        return proposal.yesVotes.gte(minimumTokensToExecuteProposal)
+    }
+
     const isStatusPending = () => {
         return proposal.status === 0
+    }
+
+    const canExecute = () => {
+        return !canVote && isYesWinning() && isStatusPending() && isMinimumVotes()
     }
 
     const getYesToNoVotes = () => {
@@ -47,6 +68,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         const voteYesPromise = contract.vote(proposal.id, true)
             .then(_ => {
                 updateParent()
+                setIsVoted(true)
             })
             .catch(e => {
                 console.error(e)
@@ -64,6 +86,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         const voteYesPromise = contract.vote(proposal.id, false)
             .then(_ => {
                 updateParent()
+                setIsVoted(true)
             })
             .catch(e => {
                 console.error(e)
@@ -97,15 +120,16 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const link = (to) => <a className={"linkToExplorer"} target="_blank"
                             href={"https://explorer.execution.l16.lukso.network/address/" + to}>{displayShortAddress(to)}</a>
 
-    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote}>
+    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted}>
         Vote Yes
     </Button>
 
-    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote}>
+    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted}>
         Vote No
     </Button>
 
-    const executeButton = <Button variant="outline-dark" size="sm" onClick={execute} disabled={canVote || !isYesWinning() || !isStatusPending()}>
+    const executeButton = <Button variant="outline-dark" size="sm" onClick={execute}
+                                  disabled={!canExecute()}>
         Execute
     </Button>
 
@@ -121,9 +145,14 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         </ProgressBar>
     </div>
 
+    if(isVoted === undefined) {
+        return null
+    }
+
     return <tr>
         <td className="align-middle">{proposal.id.toNumber()}</td>
-        <td className="align-middle"><EndingIn votingEnd={votingEnd} updateCantVote={() => setCanVote(false)}/></td>
+        <td className="align-middle"><EndingIn votingEnd={votingEnd} proposal={proposal}
+                                               updateCantVote={() => setCanVote(false)} canExecute={canExecute}/></td>
         <td className="align-middle">Transfer {ethers.utils.formatEther(proposal.value)} $LXYt
             to {link(proposal.to)}</td>
         <td className="align-middle">{link(proposal.createdBy)}</td>

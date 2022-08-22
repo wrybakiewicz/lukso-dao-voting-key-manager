@@ -66,7 +66,6 @@ export default function Deploy({provider, signer}) {
 
 
     const getProposalTimeToVoteInSeconds = (proposalTimeToVote, proposalTimeToVoteUnit) => {
-        console.log(proposalTimeToVoteUnit)
         if (proposalTimeToVoteUnit.toString() === "1") {
             return 60 * proposalTimeToVote
         } else if (proposalTimeToVoteUnit.toString() === "2") {
