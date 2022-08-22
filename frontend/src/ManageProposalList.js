@@ -38,6 +38,7 @@ export default function ManageProposalList({
 
     const proposalCreated = () => {
         initialize()
+        reload()
         setAddNewProposalOpened(false)
     }
 

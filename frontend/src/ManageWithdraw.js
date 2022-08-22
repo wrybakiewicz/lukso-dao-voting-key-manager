@@ -3,7 +3,7 @@ import {Button, InputGroup, Row} from "react-bootstrap";
 import {BigNumber, ethers} from "ethers";
 import Form from "react-bootstrap/Form";
 import "./ManageWithdraw.css"
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "react-toastify";
 import moment from "moment";
 import {formatTime} from "./TimeUtils";
@@ -19,6 +19,25 @@ export default function ManageWithdraw({
 
     const [withdrawInput, setWithdrawInput] = useState('')
     const [withdrawalInProgress, setWithdrawalInProgress] = useState(false)
+
+    const calculateWithdrawTimer = () => {
+        if (!moment.unix(possibleWithdrawTime).isBefore(moment())) {
+            const inTime = formatTime(moment.unix(possibleWithdrawTime))
+            return <div className={"manageSection inputFont"}>You will be able to withdraw in <span className={"depositValueInfo"}>{inTime}</span></div>
+        } else {
+            return null
+        }
+    }
+
+    const [withdrawTimer, setWithdrawTimer] = useState(calculateWithdrawTimer())
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setWithdrawTimer(calculateWithdrawTimer());
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    });
 
     const withdrawFromContract = () => {
         console.log("Withdrawing: " + withdrawInput)
@@ -82,15 +101,6 @@ export default function ManageWithdraw({
         </InputGroup>
     </div>
 
-    const withdrawTimer = () => {
-        if (!moment.unix(possibleWithdrawTime).isBefore(moment())) {
-            const inTime = formatTime(moment.unix(possibleWithdrawTime))
-            return <div className={"manageSection inputFont"}>You will be able to withdraw in <span className={"depositValueInfo"}>{inTime}</span></div>
-        } else {
-            return null
-        }
-    }
-
     const withdrawButton = () => {
         return <div className={"withdrawButton"}>
             <Button variant="outline-dark" onClick={withdrawFromContract}
@@ -107,7 +117,7 @@ export default function ManageWithdraw({
             {balanceInContractDetails()}
             {balance()}
             {withdraw()}
-            {withdrawTimer()}
+            {withdrawTimer}
             {withdrawButton()}
         </Col>
     </Row>
