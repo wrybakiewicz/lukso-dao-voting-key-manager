@@ -84,12 +84,12 @@ export default function Overview({
 
     const tokensToCreateProposalDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Tokens to create proposal</div>
-        <div className={"overviewValue"}>{tokensToCreateProposal}</div>
+        <div className={"overviewValue"}>{ethers.utils.formatEther(tokensToCreateProposal)}</div>
     </div>
 
     const minimumTokensToExecuteProposalDetails = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Minimum tokens to execute proposal</div>
-        <div className={"overviewValue"}>{minimumTokensToExecuteProposal}</div>
+        <div className={"overviewValue"}>{ethers.utils.formatEther(minimumTokensToExecuteProposal)}</div>
     </div>
 
     const proposalTimeToVoteDetails = () => <div className={"manageSection"}>

@@ -48,8 +48,8 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
         }).then(tokenAddress => {
             const daoGovernanceContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, provider)
             setTokenContract(daoGovernanceContract)
-            daoGovernanceContract.balanceOf(address).then(addressBalance => setTokenBalance(addressBalance))
-            daoGovernanceContract.isOperatorFor(contract.address, address).then(tokens => setAuthorizedAmount(tokens))
+            daoGovernanceContract.balanceOf(myAddress).then(addressBalance => setTokenBalance(addressBalance))
+            daoGovernanceContract.isOperatorFor(contract.address, myAddress).then(tokens => setAuthorizedAmount(tokens))
             daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
             daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
         })
@@ -57,11 +57,11 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
             setDaoAccountAddress(address)
             provider.getBalance(address).then(balance => setCurrentBalance(balance))
         })
-        contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(ethers.utils.formatEther(tokens)))
-        contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(ethers.utils.formatEther(tokens)))
+        contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
+        contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
         contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
-        contract.depositorsBalances(address)
-            .then(balance => setBalanceInContract(ethers.utils.formatEther(balance)))
+        contract.depositorsBalances(myAddress)
+            .then(balance => setBalanceInContract(balance))
     }
 
     const initialize = () => {
@@ -126,6 +126,18 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
 
     }
 
+    const manageProposalListSection = () => {
+        if (!governanceTokenSymbol || !tokensToCreateProposal || !balanceInContract || !proposalTimeToVote || !minimumTokensToExecuteProposal) {
+            return null
+        }
+        return <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress}
+                                   provider={provider} reloadCounter={reloadCounter}
+                                   governanceTokenSymbol={governanceTokenSymbol}
+                                   tokensToCreateProposal={tokensToCreateProposal}
+                                   minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
+                                   balanceInContract={balanceInContract} proposalTimeToVote={proposalTimeToVote}/>
+    }
+
     if (isValidContract && contract) {
         return <div className={"manageDetails"}>
             <Tab.Container activeKey={activeKey}>
@@ -162,8 +174,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 <ManageWithdraw/>
                             </Tab.Pane>
                             <Tab.Pane eventKey="proposals">
-                                <ManageProposalList contract={contract} signer={signer} currentAddress={myAddress}
-                                                    provider={provider} reloadCounter={reloadCounter}/>
+                                {manageProposalListSection()}
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

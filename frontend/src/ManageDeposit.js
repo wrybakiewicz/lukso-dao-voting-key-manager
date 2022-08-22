@@ -1,6 +1,6 @@
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import {ethers} from "ethers";
+import {BigNumber, ethers} from "ethers";
 import {useState} from "react";
 import Form from "react-bootstrap/Form";
 import {Button, InputGroup} from "react-bootstrap";
@@ -84,7 +84,7 @@ export default function ManageDeposit({
     </div>
 
     const balanceInContractDetails = () => {
-        if (balanceInContract === "0.0") {
+        if (balanceInContract === BigNumber.from(0)) {
             return <div className={"manageSection inputFont"}>
                 You don't have any <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> deposited in DAO
                 voting
@@ -93,7 +93,7 @@ export default function ManageDeposit({
         } else {
             return <div className={"manageSection inputFont"}>
                 You have already deposited <span
-                className={"depositValueInfo"}>{balanceInContract}</span> <span
+                className={"depositValueInfo"}>{ethers.utils.formatEther(balanceInContract)}</span> <span
                 className={"depositValueInfo"}>${governanceTokenSymbol}</span>
             </div>
         }

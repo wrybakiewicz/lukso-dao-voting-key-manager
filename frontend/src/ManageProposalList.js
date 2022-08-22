@@ -4,43 +4,35 @@ import {useEffect, useState} from "react";
 import {Button, Table} from "react-bootstrap";
 import NewProposalTransfer from "./NewProposalTransfer";
 import "./ManageProposalList.css"
-import {ContractFactory, ethers} from "ethers";
-import {ERC725YKeys} from "@lukso/lsp-smart-contracts/constants";
-import {toUtf8String} from "@ethersproject/strings";
-import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+import {ethers} from "ethers";
 import Proposal from "./Proposal";
 
-export default function ManageProposalList({contract, signer, currentAddress, provider, reloadCounter}) {
+export default function ManageProposalList({
+                                               contract,
+                                               signer,
+                                               currentAddress,
+                                               provider,
+                                               governanceTokenSymbol,
+                                               tokensToCreateProposal,
+                                               minimumTokensToExecuteProposal,
+                                               proposalTimeToVote,
+                                               balanceInContract
+                                           }) {
 
-    const [proposals, setProposals] = useState()
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
-    const [governanceTokenSymbol, setGovernanceTokenSymbol] = useState()
-    const [tokensToCreateProposal, setTokensToCreateProposal] = useState()
-    const [minimumTokensToExecuteProposal, setMinimumTokensToExecuteProposal] = useState()
-    const [tokenBalanceDeposited, setTokenBalanceDeposited] = useState()
-    const [proposalTimeToVote, setProposalTimeToVote] = useState()
+    const [proposals, setProposals] = useState()
 
     const initialize = () => {
         contract.getProposals().then(proposals => {
             setProposals(proposals)
         })
-        contract.daoGovernanceToken().then(tokenAddress => {
-            const contract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, provider)
-            contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
-
-        })
-        contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
-        contract.depositorsBalances(currentAddress)
-            .then(balance => setTokenBalanceDeposited(balance))
-        contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
-        contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
     }
 
     useEffect(_ => {
         initialize()
-    }, [reloadCounter])
+    }, [])
 
-    if (!proposals || !governanceTokenSymbol || !tokensToCreateProposal || !tokenBalanceDeposited) {
+    if (!proposals) {
         return null
     }
 
@@ -61,9 +53,10 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                 </div>
                 <div className={"manageSection"}>
                     <div className={"inputFont proposalInfo"}>To proposal to be accepted it needs <span
-                        className={"proposalInfoValues"}>{ethers.utils.formatEther(minimumTokensToExecuteProposal)} ${governanceTokenSymbol}</span> and more <span
-                        className={"proposalInfoValues"}>Yes</span> than <span
-                        className={"proposalInfoValues"}>No</span> votes
+                        className={"proposalInfoValues"}>{ethers.utils.formatEther(minimumTokensToExecuteProposal)} ${governanceTokenSymbol}</span> and
+                        more <span
+                            className={"proposalInfoValues"}>Yes</span> than <span
+                            className={"proposalInfoValues"}>No</span> votes
                     </div>
                 </div>
                 <Table striped hover responsive variant="dark">
@@ -73,15 +66,20 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
                         <th>Status</th>
                         <th>Details</th>
                         <th>Created by</th>
-                        <th><div className={"elementCentered"}>Votes</div></th>
-                        <th><div className={"elementCentered"}>Actions</div></th>
+                        <th>
+                            <div className={"elementCentered"}>Votes</div>
+                        </th>
+                        <th>
+                            <div className={"elementCentered"}>Actions</div>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
                     {proposals.map(proposal => <Proposal key={proposal.id.toNumber()} proposal={proposal}
                                                          governanceTokenSymbol={governanceTokenSymbol}
                                                          contract={contract} proposalTimeToVote={proposalTimeToVote}
-                                                         updateParent={() => initialize()} currentAddress={currentAddress}
+                                                         updateParent={() => initialize()}
+                                                         currentAddress={currentAddress}
                                                          minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}/>)}
                     </tbody>
                 </Table>
@@ -93,7 +91,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         <div className={"manageSection"}>
             <div className={"inputFont proposalInfo"}>To create new proposal you need <span
                 className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
-                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(tokenBalanceDeposited)}</span>
+                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)}</span>
             </div>
         </div>
 
@@ -102,7 +100,7 @@ export default function ManageProposalList({contract, signer, currentAddress, pr
         if (!addNewProposalOpened) {
             return <div className={"createNewProposalButton"}>
                 <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(true)}
-                        disabled={tokensToCreateProposal.gt(tokenBalanceDeposited)}>
+                        disabled={tokensToCreateProposal.gt(balanceInContract)}>
                     Add new proposal
                 </Button>
             </div>
