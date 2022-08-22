@@ -54,7 +54,6 @@ export default function ManageDeposit({contract, signer, currentAddress, reloadP
         }
     }
 
-    //TODO: deposit to contract need to reload the whole component
     const depositToContract = () => {
         console.log("Depositing: " + depositInput)
         setDepositInProgress(true)
