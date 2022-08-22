@@ -1,41 +1,25 @@
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import {ContractFactory, ethers} from "ethers";
-import {ERC725YKeys} from "@lukso/lsp-smart-contracts/constants";
-import {toUtf8String} from "@ethersproject/strings";
-import {useEffect, useState} from "react";
-import LSP7DigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP7DigitalAsset.json";
+import {ethers} from "ethers";
+import {useState} from "react";
 import Form from "react-bootstrap/Form";
 import {Button, InputGroup} from "react-bootstrap";
 import "./ManageDeposit.css"
 import {toast} from "react-toastify";
 
-export default function ManageDeposit({contract, signer, currentAddress, reloadParent, reloadCounter}) {
+export default function ManageDeposit({
+                                          contract,
+                                          reload,
+                                          tokenContract,
+                                          governanceTokenSymbol,
+                                          tokenBalance,
+                                          balanceInContract,
+                                          authorizedAmount
+                                      }) {
 
-    const [tokenContract, setTokenContract] = useState()
     const [depositInProgress, setDepositInProgress] = useState(false)
     const [showOnlyDeposit, setShowOnlyDeposit] = useState(true)
-    const [tokenSymbol, setTokenSymbol] = useState()
     const [depositInput, setDepositInput] = useState('')
-    const [tokenBalance, setTokenBalance] = useState()
-    const [balanceInContract, setBalanceInContract] = useState()
-    const [authorizedAmount, setAuthorizedAmount] = useState()
-
-    const initialize = () => {
-        contract.daoGovernanceToken().then(tokenAddress => {
-            const tokenContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, signer)
-            setTokenContract(tokenContract)
-            tokenContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setTokenSymbol(toUtf8String(tokenSymbol)))
-            tokenContract.balanceOf(currentAddress).then(addressBalance => setTokenBalance(addressBalance))
-            tokenContract.isOperatorFor(contract.address, currentAddress).then(tokens => setAuthorizedAmount(tokens))
-        })
-        contract.depositorsBalances(currentAddress)
-            .then(balance => setBalanceInContract(ethers.utils.formatEther(balance)))
-    }
-
-    useEffect(_ => {
-        initialize()
-    }, [reloadCounter])
 
     const maxDeposit = () => {
         setDepositInput(ethers.utils.formatEther(tokenBalance))
@@ -58,7 +42,7 @@ export default function ManageDeposit({contract, signer, currentAddress, reloadP
         console.log("Depositing: " + depositInput)
         setDepositInProgress(true)
         const depositPromise = contract.deposit(ethers.utils.parseEther(depositInput)).then(_ => {
-            reloadParent()
+            reload()
         }).catch(e => {
             console.error(e)
             throw e
@@ -66,7 +50,7 @@ export default function ManageDeposit({contract, signer, currentAddress, reloadP
             setDepositInProgress(false)
         })
         toast.promise(depositPromise, {
-            pending: 'Depositing $' + tokenSymbol,
+            pending: 'Depositing $' + governanceTokenSymbol,
             success: '🦀 Deposit succeed 🦀',
             error: '☠ Deposit failed ☠'
         })
@@ -91,32 +75,33 @@ export default function ManageDeposit({contract, signer, currentAddress, reloadP
     }
 
     const info = () => <div className={"bigManageSection bigInputFont"}>
-        Deposit <span className={"depositValueInfo"}>${tokenSymbol}</span> to participate in DAO voting
+        Deposit <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> to participate in DAO voting
     </div>
 
     const balance = () => <div className={"manageSection inputFont"}>
-        Your <span className={"depositValueInfo"}>${tokenSymbol}</span> balance: <span
+        Your <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> balance: <span
         className={"depositValueInfo"}>{ethers.utils.formatEther(tokenBalance)}</span>
     </div>
 
     const balanceInContractDetails = () => {
         if (balanceInContract === "0.0") {
             return <div className={"manageSection inputFont"}>
-                You don't have any <span className={"depositValueInfo"}>${tokenSymbol}</span> deposited in DAO voting
+                You don't have any <span className={"depositValueInfo"}>${governanceTokenSymbol}</span> deposited in DAO
+                voting
                 contract
             </div>
         } else {
             return <div className={"manageSection inputFont"}>
                 You have already deposited <span
                 className={"depositValueInfo"}>{balanceInContract}</span> <span
-                className={"depositValueInfo"}>${tokenSymbol}</span>
+                className={"depositValueInfo"}>${governanceTokenSymbol}</span>
             </div>
         }
     }
 
     const deposit = () => <div className={"manageSection depositSection"}>
         <InputGroup className="mb-3">
-            <Form.Control placeholder={`Number of ${tokenSymbol} tokens to deposit`} type={"number"}
+            <Form.Control placeholder={`Number of ${governanceTokenSymbol} tokens to deposit`} type={"number"}
                           value={depositInput}
                           onChange={e => updateDepositInput(e.target.value)}/>
             <Button variant="outline-dark" onClick={maxDeposit}>
@@ -141,10 +126,6 @@ export default function ManageDeposit({contract, signer, currentAddress, reloadP
                 Deposit
             </Button>
         </div>
-    }
-
-    if (!tokenContract || !tokenSymbol || !tokenBalance || !balanceInContract || !authorizedAmount) {
-        return null
     }
 
     return <Row>

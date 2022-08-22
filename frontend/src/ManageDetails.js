@@ -33,17 +33,25 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     const [proposalTimeToVote, setProposalTimeToVote] = useState()
     const [currentBalance, setCurrentBalance] = useState()
 
+    const [tokenContract, setTokenContract] = useState()
+    const [tokenBalance, setTokenBalance] = useState()
+    const [balanceInContract, setBalanceInContract] = useState()
+    const [authorizedAmount, setAuthorizedAmount] = useState()
+
     let {address} = useParams();
 
-    const initialize = (contract) => {
+    const initializeContract = (contract) => {
         contract.daoName().then(name => setDaoName(name))
         contract.daoGovernanceToken().then(tokenAddress => {
             setGovernanceTokenAddress(tokenAddress)
             return tokenAddress
         }).then(tokenAddress => {
-            const contract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, provider)
-            contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
-            contract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
+            const daoGovernanceContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, provider)
+            setTokenContract(daoGovernanceContract)
+            daoGovernanceContract.balanceOf(address).then(addressBalance => setTokenBalance(addressBalance))
+            daoGovernanceContract.isOperatorFor(contract.address, address).then(tokens => setAuthorizedAmount(tokens))
+            daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
+            daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
         })
         contract.account().then(address => {
             setDaoAccountAddress(address)
@@ -52,21 +60,23 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
         contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(ethers.utils.formatEther(tokens)))
         contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(ethers.utils.formatEther(tokens)))
         contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
+        contract.depositorsBalances(address)
+            .then(balance => setBalanceInContract(ethers.utils.formatEther(balance)))
+    }
+
+    const initialize = () => {
+        console.log("Initializing Manage Details")
+        updateIsValidContract().then(_ => {
+            const contract = updateContract()
+            initializeContract(contract)
+        })
     }
 
     useEffect(_ => {
         if (myAddress && signer && provider) {
-            console.log("Initializing Manage Details")
-            updateIsValidContract().then(_ => {
-                const contract = updateContract()
-                initialize(contract)
-            })
+            initialize()
         }
-    }, [myAddress, signer, provider, reloadCounter])
-
-    const reload = () => {
-        setReloadCounter(reloadCounter + 1)
-    }
+    }, [myAddress, signer, provider])
 
     const updateIsValidContract = async () => {
         if (ethers.utils.isAddress(address)) {
@@ -106,6 +116,16 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                          proposalTimeToVote={proposalTimeToVote} currentBalance={currentBalance}/>
     }
 
+    const manageDetailsSection = () => {
+        if (!tokenContract || !governanceTokenSymbol || !tokenBalance || !balanceInContract || !authorizedAmount) {
+            return null
+        }
+        return <ManageDeposit contract={contract} reload={() => initialize()} tokenContract={tokenContract}
+                              governanceTokenSymbol={governanceTokenSymbol} tokenBalance={tokenBalance}
+                              balanceInContract={balanceInContract} authorizedAmount={authorizedAmount}/>
+
+    }
+
     if (isValidContract && contract) {
         return <div className={"manageDetails"}>
             <Tab.Container activeKey={activeKey}>
@@ -136,8 +156,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
                                 {overviewSection()}
                             </Tab.Pane>
                             <Tab.Pane eventKey="deposit">
-                                <ManageDeposit contract={contract} signer={signer} currentAddress={myAddress}
-                                               reloadParent={reload} reloadCounter={reloadCounter}/>
+                                {manageDetailsSection()}
                             </Tab.Pane>
                             <Tab.Pane eventKey="withdraw">
                                 <ManageWithdraw/>
