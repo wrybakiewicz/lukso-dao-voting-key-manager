@@ -134,13 +134,13 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const manageProposalListSection = () => {
-        if (!governanceTokenSymbol || !tokensToCreateProposal || !balanceInContract || !proposalTimeToVote || !minimumTokensToExecuteProposal || !currentBalance) {
+        if (!governanceTokenSymbol || !governanceTokenBalance || !tokensToCreateProposal || !balanceInContract || !proposalTimeToVote || !minimumTokensToExecuteProposal || !currentBalance) {
             return null
         }
         return <ManageProposalList contract={contract} currentAddress={myAddress}
                                    currentBalance={currentBalance}
                                    governanceTokenSymbol={governanceTokenSymbol}
-                                   tokensToCreateProposal={tokensToCreateProposal}
+                                   tokensToCreateProposal={tokensToCreateProposal} governanceTokenBalance={governanceTokenBalance}
                                    minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
                                    balanceInContract={balanceInContract} proposalTimeToVote={proposalTimeToVote}
                                    reload={() => initialize()}/>

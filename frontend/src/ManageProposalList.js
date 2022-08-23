@@ -2,10 +2,10 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import {useEffect, useState} from "react";
 import {Button, Table} from "react-bootstrap";
-import NewProposalTransfer from "./NewProposalTransfer";
 import "./ManageProposalList.css"
 import {ethers} from "ethers";
 import Proposal from "./Proposal";
+import NewProposalTabs from "./NewProposalTabs";
 
 export default function ManageProposalList({
                                                contract,
@@ -16,7 +16,8 @@ export default function ManageProposalList({
                                                minimumTokensToExecuteProposal,
                                                proposalTimeToVote,
                                                balanceInContract,
-                                               reload
+                                               reload,
+                                               governanceTokenBalance
                                            }) {
 
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
@@ -60,7 +61,8 @@ export default function ManageProposalList({
                             className={"proposalInfoValues"}>Yes</span> than <span
                             className={"proposalInfoValues"}>No</span> votes.
                     </div>
-                    <div className={"inputFont"}>When you vote on proposal your deposit is locked until proposal voting end.
+                    <div className={"inputFont"}>When you vote on proposal your deposit is locked until proposal voting
+                        end.
                     </div>
                 </div>
                 <Table striped hover responsive variant="dark">
@@ -96,9 +98,11 @@ export default function ManageProposalList({
         <div className={"manageSection proposalInfo"}>
             <div className={"inputFont proposalInfoSection"}>To create proposal you need <span
                 className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
-                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)} ${governanceTokenSymbol}</span>.
+                you have <span
+                    className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)} ${governanceTokenSymbol}</span>.
             </div>
-            <div className={"inputFont"}>Those funds are locked during proposal creation and you can get them back when proposal is finalized.
+            <div className={"inputFont"}>Those funds are locked during proposal creation and you can get them back when
+                proposal is finalized.
             </div>
         </div>
 
@@ -119,7 +123,8 @@ export default function ManageProposalList({
     const addNewProposalCloseButton = () => {
         if (addNewProposalOpened) {
             return <div>
-                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(false)} disabled={creatingProposalInProgress}>
+                <Button variant="outline-dark" onClick={() => setAddNewProposalOpened(false)}
+                        disabled={creatingProposalInProgress}>
                     Forget this proposal
                 </Button>
             </div>
@@ -132,8 +137,10 @@ export default function ManageProposalList({
     const newProposal = () => {
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
-                <NewProposalTransfer contract={contract} proposalCreated={proposalCreated}
-                                     currentBalance={currentBalance} updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}/>
+                <NewProposalTabs contract={contract} proposalCreated={proposalCreated}
+                                 currentBalance={currentBalance} governanceTokenBalance={governanceTokenBalance}
+                                 updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}
+                                 governanceTokenSymbol={governanceTokenSymbol}/>
             </div>
         } else {
             return null
