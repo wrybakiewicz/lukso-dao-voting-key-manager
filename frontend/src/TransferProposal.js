@@ -47,6 +47,10 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         return proposal.status === 0
     }
 
+    const isFailedPending = () => {
+        return proposal.status === 3
+    }
+
     const canExecute = () => {
         return !canVote && isYesWinning() && isStatusPending() && isMinimumVotes()
     }
@@ -108,7 +112,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const execute = () => {
         setExecuteInProgress(true)
-        const executePromise = contract.execute(proposal.id)
+        const executePromise = contract.finalize(proposal.id)
             .then(_ => {
                 updateParent()
                 reload()
@@ -119,9 +123,9 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
             }).finally(_ => setExecuteInProgress(false))
 
         toast.promise(executePromise, {
-            pending: 'Executing proposal',
-            success: '🦀 Executed proposal 🦀',
-            error: '☠ Execute proposal failed ☠'
+            pending: 'Finalizing proposal',
+            success: '🦀 Finalized proposal 🦀',
+            error: '☠ Finalize proposal failed ☠'
         })
     }
 
@@ -136,13 +140,22 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         Vote No
     </Button>
 
-    const executeButton = <Button variant="outline-dark" size="sm" onClick={execute}
-                                  disabled={!canExecute() || executeInProgress}>
-        Execute
-    </Button>
+    const finalizeButton = () => {
+        if(!canVote && (isStatusPending() || isFailedPending()) && proposal.createdBy === currentAddress && (!isMinimumVotes() || !isYesWinning())) {
+            return <Button variant="outline-dark" size="sm" onClick={execute}
+                    disabled={!isStatusPending() || executeInProgress}>
+                Get deposit back
+            </Button>
+        } else {
+            return <Button variant="outline-dark" size="sm" onClick={execute}
+                    disabled={!canExecute() || executeInProgress}>
+                Execute
+            </Button>
+        }
+    }
 
     const buttons = () => <div className={"elementCentered"}>
-        {voteYesButton} {voteNoButton} {executeButton}
+        {voteYesButton} {voteNoButton} {finalizeButton()}
     </div>
 
 
