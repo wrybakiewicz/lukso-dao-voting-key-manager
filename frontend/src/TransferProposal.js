@@ -113,9 +113,9 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const execute = () => {
         setExecuteInProgress(true)
         const executePromise = contract.finalize(proposal.id)
-            .then(_ => {
+            .then(async _ => {
                 updateParent()
-                reload()
+                return reload()
             })
             .catch(e => {
                 console.error(e)

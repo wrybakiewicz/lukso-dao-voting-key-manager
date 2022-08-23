@@ -41,35 +41,37 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     let {address} = useParams();
 
     const initializeContract = (contract) => {
-        contract.daoName().then(name => setDaoName(name))
-        contract.daoGovernanceToken().then(tokenAddress => {
+        const namePromise = contract.daoName().then(name => setDaoName(name))
+        const tokenPromise = contract.daoGovernanceToken().then(tokenAddress => {
             setGovernanceTokenAddress(tokenAddress)
             return tokenAddress
         }).then(tokenAddress => {
             const daoGovernanceContract = ContractFactory.getContract(tokenAddress, LSP7DigitalAsset.abi, signer)
             setTokenContract(daoGovernanceContract)
-            daoGovernanceContract.balanceOf(myAddress).then(addressBalance => setTokenBalance(addressBalance))
-            daoGovernanceContract.isOperatorFor(contract.address, myAddress).then(tokens => setAuthorizedAmount(tokens))
-            daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
-            daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
+            const balancePromise = daoGovernanceContract.balanceOf(myAddress).then(addressBalance => setTokenBalance(addressBalance))
+            const isOperatorPromise = daoGovernanceContract.isOperatorFor(contract.address, myAddress).then(tokens => setAuthorizedAmount(tokens))
+            const namePromise = daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
+            const symbolPromise = daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
+            return Promise.all([balancePromise, isOperatorPromise, namePromise, symbolPromise])
         })
-        contract.account().then(address => {
+        const accountPromise = contract.account().then(address => {
             setDaoAccountAddress(address)
-            provider.getBalance(address).then(balance => setCurrentBalance(balance))
+            return provider.getBalance(address).then(balance => setCurrentBalance(balance))
         })
-        contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
-        contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
-        contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
-        contract.depositorsBalances(myAddress)
+        const tokensToCreateProposalPromise = contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
+        const tokensToExecuteProposalPromise = contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
+        const timeToVotePromise = contract.proposalTimeToVoteInSeconds().then(proposalTimeToVoteInSeconds => setProposalTimeToVote(proposalTimeToVoteInSeconds.toNumber()))
+        const depositorBalancesPromise = contract.depositorsBalances(myAddress)
             .then(balance => setBalanceInContract(balance))
-        contract.getPossibleWithdrawTime().then(time => setPossibleWithdrawTime(time.toNumber()))
+        const withdrawalTimePromise = contract.getPossibleWithdrawTime().then(time => setPossibleWithdrawTime(time.toNumber()))
+        return Promise.all([namePromise, tokenPromise, accountPromise, tokensToCreateProposalPromise, tokensToExecuteProposalPromise, timeToVotePromise, depositorBalancesPromise, withdrawalTimePromise])
     }
 
     const initialize = () => {
         console.log("Initializing Manage Details")
-        updateIsValidContract().then(_ => {
+        return updateIsValidContract().then(_ => {
             const contract = updateContract()
-            initializeContract(contract)
+            return initializeContract(contract)
         })
     }
 
