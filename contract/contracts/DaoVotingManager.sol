@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 import {ILSP7DigitalAsset} from "@lukso/lsp-smart-contracts/contracts/LSP7DigitalAsset/ILSP7DigitalAsset.sol";
 import "@lukso/lsp-smart-contracts/contracts/LSP0ERC725Account/LSP0ERC725Account.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract DaoVotingManager {
+contract DaoVotingManager is ReentrancyGuard {
     using Counters for Counters.Counter;
 
     enum Vote {PENDING, YES, NO}
@@ -99,7 +100,7 @@ contract DaoVotingManager {
         proposalIdToProposal[_proposalId] = proposal;
     }
 
-    function execute(uint _proposalId) public {
+    function execute(uint _proposalId) public nonReentrant {
         Proposal memory proposal = proposalIdToProposal[_proposalId];
         require(proposal.createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Too early to execute");
         uint _yesVotes = proposal.yesVotes;
