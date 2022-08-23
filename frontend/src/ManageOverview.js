@@ -18,7 +18,8 @@ export default function Overview({
                                      tokensToCreateProposal,
                                      minimumTokensToExecuteProposal,
                                      proposalTimeToVote,
-                                     currentBalance
+                                     currentBalance,
+                                     governanceTokenBalance
                                  }) {
 
     let {address} = useParams();
@@ -56,6 +57,7 @@ export default function Overview({
     const currentBalanceSection = () => <div className={"manageSection"}>
         <div className={"inputFont"}>Current balance</div>
         <div className={"overviewValue"}>{ethers.utils.formatEther(currentBalance)} LYXt</div>
+        <div className={"overviewValue"}>{ethers.utils.formatEther(governanceTokenBalance)} {governanceTokenSymbol}</div>
     </div>
 
     const governanceToken = () => <div className={"manageSection"}>

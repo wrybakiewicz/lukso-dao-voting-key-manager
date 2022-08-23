@@ -24,6 +24,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
 
     const [daoName, setDaoName] = useState()
     const [governanceTokenAddress, setGovernanceTokenAddress] = useState()
+    const [governanceTokenBalance, setGovernanceTokenBalance] = useState()
     const [governanceTokenSymbol, setGovernanceTokenSymbol] = useState()
     const [governanceTokenName, setGovernanceTokenName] = useState()
     const [daoAccountAddress, setDaoAccountAddress] = useState()
@@ -41,6 +42,13 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     let {address} = useParams();
 
     const initializeContract = (contract) => {
+        const accountPromise = contract.account().then(address => {
+            setDaoAccountAddress(address)
+            return provider.getBalance(address).then(balance => {
+                setCurrentBalance(balance)
+                return address
+            })
+        })
         const namePromise = contract.daoName().then(name => setDaoName(name))
         const tokenPromise = contract.daoGovernanceToken().then(tokenAddress => {
             setGovernanceTokenAddress(tokenAddress)
@@ -52,11 +60,8 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
             const isOperatorPromise = daoGovernanceContract.isOperatorFor(contract.address, myAddress).then(tokens => setAuthorizedAmount(tokens))
             const namePromise = daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenName).then(tokenName => setGovernanceTokenName(toUtf8String(tokenName)))
             const symbolPromise = daoGovernanceContract["getData(bytes32)"](ERC725YKeys.LSP4.LSP4TokenSymbol).then(tokenSymbol => setGovernanceTokenSymbol(toUtf8String(tokenSymbol)))
+            accountPromise.then(accountAddress => daoGovernanceContract.balanceOf(accountAddress).then(balance => setGovernanceTokenBalance(balance)))
             return Promise.all([balancePromise, isOperatorPromise, namePromise, symbolPromise])
-        })
-        const accountPromise = contract.account().then(address => {
-            setDaoAccountAddress(address)
-            return provider.getBalance(address).then(balance => setCurrentBalance(balance))
         })
         const tokensToCreateProposalPromise = contract.tokensToCreateProposal().then(tokens => setTokensToCreateProposal(tokens))
         const tokensToExecuteProposalPromise = contract.minTokensToExecuteProposal().then(tokens => setMinimumTokensToExecuteProposal(tokens))
@@ -105,14 +110,14 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     const overviewSection = () => {
-        if (!daoName || !governanceTokenAddress || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address || !currentBalance) {
+        if (!daoName || !governanceTokenAddress || !governanceTokenBalance || !governanceTokenSymbol || !governanceTokenName || !daoAccountAddress || !tokensToCreateProposal || !minimumTokensToExecuteProposal || !proposalTimeToVote || !address || !currentBalance) {
             return null
         }
 
         return <Overview daoName={daoName} governanceTokenAddress={governanceTokenAddress}
                          governanceTokenSymbol={governanceTokenSymbol}
                          governanceTokenName={governanceTokenName}
-                         daoAccountAddress={daoAccountAddress}
+                         daoAccountAddress={daoAccountAddress} governanceTokenBalance={governanceTokenBalance}
                          tokensToCreateProposal={tokensToCreateProposal}
                          minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
                          proposalTimeToVote={proposalTimeToVote} currentBalance={currentBalance}/>
