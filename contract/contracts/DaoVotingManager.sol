@@ -45,6 +45,7 @@ contract DaoVotingManager is ReentrancyGuard {
         uint _tokensToCreateProposal, uint _minTokensToExecuteProposal, uint _proposalTimeToVoteInSeconds) {
         daoGovernanceToken = ILSP7DigitalAsset(_daoGovernanceTokenAddress);
         uint _totalSupply = daoGovernanceToken.totalSupply();
+        daoGovernanceToken.authorizeOperator(address(this), type(uint256).max);
         require(_tokensToCreateProposal <= _totalSupply, "Tokens to create proposal must be <= total supply");
         require(_minTokensToExecuteProposal <= _totalSupply, "Min tokens to create proposal must be <= total supply");
 

@@ -1,10 +1,10 @@
 pragma solidity ^0.8.0;
 
-import {LSP7CompatibleERC20} from "@lukso/lsp-smart-contracts/contracts/LSP7DigitalAsset/extensions/LSP7CompatibleERC20.sol";
+import {LSP7DigitalAsset} from "@lukso/lsp-smart-contracts/contracts/LSP7DigitalAsset/LSP7DigitalAsset.sol";
 
-contract LSP7DigitalAssetMock is LSP7CompatibleERC20 {
+contract LSP7DigitalAssetMock is LSP7DigitalAsset {
 
-    constructor(address[] memory owners) LSP7CompatibleERC20("My DAO Token", "MDT", msg.sender) {
+    constructor(address[] memory owners) LSP7DigitalAsset("My DAO Token", "MDT", msg.sender, false) {
         _mint(msg.sender, 10 ether, true, "");
         for(uint i=0; i<owners.length; i++) {
             _mint(owners[i], 4 ether, true, "");
