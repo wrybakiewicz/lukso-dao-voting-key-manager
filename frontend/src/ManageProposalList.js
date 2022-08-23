@@ -17,7 +17,9 @@ export default function ManageProposalList({
                                                proposalTimeToVote,
                                                balanceInContract,
                                                reload,
-                                               governanceTokenBalance
+                                               tokenContract,
+                                               governanceTokenBalance,
+                                               governanceTokenAddress
                                            }) {
 
     const [addNewProposalOpened, setAddNewProposalOpened] = useState(false)
@@ -138,6 +140,7 @@ export default function ManageProposalList({
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
                 <NewProposalTabs contract={contract} proposalCreated={proposalCreated}
+                                 governanceTokenAddress={governanceTokenAddress} tokenContract={tokenContract}
                                  currentBalance={currentBalance} governanceTokenBalance={governanceTokenBalance}
                                  updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}
                                  governanceTokenSymbol={governanceTokenSymbol}/>

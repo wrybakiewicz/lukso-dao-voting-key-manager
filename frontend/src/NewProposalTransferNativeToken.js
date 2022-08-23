@@ -7,11 +7,14 @@ import {useState} from "react";
 
 export default function NewProposalTransferNativeToken({
                                                            contract,
+                                                           governanceTokenAddress,
                                                            governanceTokenBalance,
                                                            proposalCreated,
                                                            updateCreatingProposal,
-                                                           governanceTokenSymbol
+                                                           governanceTokenSymbol,
+                                                           tokenContract
                                                        }) {
+
     const [creatingProposalInProgress, setCreatingProposalInProgress] = useState(false)
     const [receiverAddress, setReceiverAddress] = useState('')
     const [amount, setAmount] = useState('')
@@ -20,12 +23,15 @@ export default function NewProposalTransferNativeToken({
         setAmount(ethers.utils.formatEther(governanceTokenBalance))
     }
 
-    //TODO: change to token transfer proposal
     const createProposal = () => {
-        console.log("Creating proposal amount: " + amount + " address: " + receiverAddress)
+        console.log("Creating proposal amount: " + amount + " address: " + receiverAddress + " token address: " + governanceTokenAddress)
         setCreatingProposalInProgress(true)
         updateCreatingProposal(true)
-        const createProposalPromise = contract.createProposal(0, receiverAddress, ethers.utils.parseEther(amount), "0x")
+        const payload = tokenContract.interface.encodeFunctionData(
+            'transfer',
+            [contract.address, receiverAddress, ethers.utils.parseEther(amount), false, "0x"],
+        );
+        const createProposalPromise = contract.createProposal(0, governanceTokenAddress, 0, payload)
             .then(_ => proposalCreated())
             .catch(e => {
                 console.error(e)

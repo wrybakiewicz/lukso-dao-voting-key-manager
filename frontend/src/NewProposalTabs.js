@@ -5,11 +5,13 @@ import NewProposalTransferNativeToken from "./NewProposalTransferNativeToken";
 
 export default function NewProposalTabs({
                                             contract,
+                                            governanceTokenAddress,
                                             proposalCreated,
                                             currentBalance,
-                                            setCreatingProposalInProgress,
+                                            updateCreatingProposal,
                                             governanceTokenSymbol,
-                                            governanceTokenBalance
+                                            governanceTokenBalance,
+                                            tokenContract
                                         }) {
     return <div className={"newProposalTabs"}>
         <Tabs
@@ -18,12 +20,13 @@ export default function NewProposalTabs({
             <Tab eventKey="native" title="Transfer LYXt">
                 <NewProposalTransfer contract={contract} proposalCreated={proposalCreated}
                                      currentBalance={currentBalance}
-                                     updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}/>
+                                     updateCreatingProposal={(bool) => updateCreatingProposal(bool)}/>
             </Tab>
             <Tab eventKey="dao" title={"Transfer " + governanceTokenSymbol}>
                 <NewProposalTransferNativeToken contract={contract} proposalCreated={proposalCreated}
-                                                governanceTokenBalance={governanceTokenBalance}
-                                                updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}
+                                                governanceTokenAddress={governanceTokenAddress}
+                                                governanceTokenBalance={governanceTokenBalance} tokenContract={tokenContract}
+                                                updateCreatingProposal={(bool) => updateCreatingProposal(bool)}
                                                 governanceTokenSymbol={governanceTokenSymbol}/>
             </Tab>
         </Tabs>

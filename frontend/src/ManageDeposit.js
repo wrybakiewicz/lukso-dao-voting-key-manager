@@ -22,7 +22,7 @@ export default function ManageDeposit({
     const [depositInput, setDepositInput] = useState('')
 
     const maxDeposit = () => {
-        setDepositInput(ethers.utils.formatEther(tokenBalance))
+        updateDepositInput(ethers.utils.formatEther(tokenBalance))
     }
 
     const canDeposit = () => {
