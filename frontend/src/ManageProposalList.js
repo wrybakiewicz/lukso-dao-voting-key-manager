@@ -86,7 +86,7 @@ export default function ManageProposalList({
                     {proposals.map(proposal => <Proposal key={proposal.id.toNumber()} proposal={proposal}
                                                          governanceTokenSymbol={governanceTokenSymbol}
                                                          contract={contract} proposalTimeToVote={proposalTimeToVote}
-                                                         updateParent={() => initialize()}
+                                                         updateParent={() => initialize()} tokenContract={tokenContract}
                                                          currentAddress={currentAddress}
                                                          minimumTokensToExecuteProposal={minimumTokensToExecuteProposal}
                                                          reload={reload} balanceInContract={balanceInContract}/>)}

@@ -8,8 +8,18 @@ import EndingIn from "./EndingIn";
 import {useEffect, useState} from "react";
 import moment from "moment";
 
-export default function TransferProposal({proposal, governanceTokenSymbol, contract, proposalTimeToVote, updateParent,
-                                             currentAddress, minimumTokensToExecuteProposal, reload, balanceInContract}) {
+export default function ProposalTableRow({
+                                             proposal,
+                                             governanceTokenSymbol,
+                                             contract,
+                                             proposalTimeToVote,
+                                             updateParent,
+                                             currentAddress,
+                                             minimumTokensToExecuteProposal,
+                                             reload,
+                                             balanceInContract,
+                                             details
+                                         }) {
 
     const [isVoted, setIsVoted] = useState()
     const [executeInProgress, setExecuteInProgress] = useState(false)
@@ -57,7 +67,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const getYesToNoVotes = () => {
         const sumVotes = proposal.yesVotes.add(proposal.noVotes)
-        if(sumVotes.gt(0)) {
+        if (sumVotes.gt(0)) {
             return (proposal.yesVotes.mul(100)).div(sumVotes)
         } else {
             return 0
@@ -65,7 +75,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     }
 
     const getNoToYesVotes = () => {
-        if(proposal.noVotes.gt(0)) {
+        if (proposal.noVotes.gt(0)) {
             return BigNumber.from(100).sub(getYesToNoVotes())
         } else {
             return 0
@@ -132,23 +142,25 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
     const link = (to) => <a className={"linkToExplorer"} target="_blank"
                             href={"https://explorer.execution.l16.lukso.network/address/" + to}>{displayShortAddress(to)}</a>
 
-    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes} disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
+    const voteYesButton = <Button variant="outline-dark" size="sm" onClick={voteYes}
+                                  disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
         Vote Yes
     </Button>
 
-    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo} disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
+    const voteNoButton = <Button variant="outline-dark" size="sm" onClick={voteNo}
+                                 disabled={!canVote || isVoted || balanceInContractIs0 || voteInProgress}>
         Vote No
     </Button>
 
     const finalizeButton = () => {
-        if(!canVote && (isStatusPending() || isFailedPending()) && proposal.createdBy === currentAddress && (!isMinimumVotes() || !isYesWinning())) {
+        if (!canVote && (isStatusPending() || isFailedPending()) && proposal.createdBy === currentAddress && (!isMinimumVotes() || !isYesWinning())) {
             return <Button variant="outline-dark" size="sm" onClick={execute}
-                    disabled={!isStatusPending() || executeInProgress}>
+                           disabled={!isStatusPending() || executeInProgress}>
                 Get deposit back
             </Button>
         } else {
             return <Button variant="outline-dark" size="sm" onClick={execute}
-                    disabled={!canExecute() || executeInProgress}>
+                           disabled={!canExecute() || executeInProgress}>
                 Execute
             </Button>
         }
@@ -161,12 +173,14 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
 
     const voteProgress = () => <div>
         <ProgressBar animated className={"votesProgressBar"}>
-            <ProgressBar animated striped variant="success" now={getYesToNoVotes()} key={1} label={ethers.utils.formatEther(proposal.yesVotes) + " $" + governanceTokenSymbol}/>
-            <ProgressBar animated striped variant="danger" now={getNoToYesVotes()} key={2} label={ethers.utils.formatEther(proposal.noVotes) + " $" + governanceTokenSymbol}/>
+            <ProgressBar animated striped variant="success" now={getYesToNoVotes()} key={1}
+                         label={ethers.utils.formatEther(proposal.yesVotes) + " $" + governanceTokenSymbol}/>
+            <ProgressBar animated striped variant="danger" now={getNoToYesVotes()} key={2}
+                         label={ethers.utils.formatEther(proposal.noVotes) + " $" + governanceTokenSymbol}/>
         </ProgressBar>
     </div>
 
-    if(isVoted === undefined) {
+    if (isVoted === undefined) {
         return null
     }
 
@@ -174,8 +188,7 @@ export default function TransferProposal({proposal, governanceTokenSymbol, contr
         <td className="align-middle">{proposal.id.toNumber()}</td>
         <td className="align-middle"><EndingIn votingEnd={votingEnd} proposal={proposal}
                                                updateCantVote={() => setCanVote(false)} canExecute={canExecute}/></td>
-        <td className="align-middle">Transfer {ethers.utils.formatEther(proposal.value)} $LXYt
-            to {link(proposal.to)}</td>
+        <td className="align-middle">{details}</td>
         <td className="align-middle">{link(proposal.createdBy)}</td>
         <td className="align-middle">{voteProgress()}</td>
         <td className="align-middle">{buttons()}</td>
