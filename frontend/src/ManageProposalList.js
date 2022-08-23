@@ -53,12 +53,14 @@ export default function ManageProposalList({
                 <div className={"bigManageSection bigInputFont"}>
                     Proposals
                 </div>
-                <div className={"manageSection"}>
-                    <div className={"inputFont proposalInfo"}>To proposal to be accepted it needs <span
+                <div className={"manageSection proposalInfo"}>
+                    <div className={"inputFont proposalInfoSection"}>To proposal to be accepted it needs <span
                         className={"proposalInfoValues"}>{ethers.utils.formatEther(minimumTokensToExecuteProposal)} ${governanceTokenSymbol}</span> and
                         more <span
                             className={"proposalInfoValues"}>Yes</span> than <span
-                            className={"proposalInfoValues"}>No</span> votes
+                            className={"proposalInfoValues"}>No</span> votes.
+                    </div>
+                    <div className={"inputFont"}>When you vote on proposal your deposit is locked until proposal voting end.
                     </div>
                 </div>
                 <Table striped hover responsive variant="dark">
@@ -91,10 +93,12 @@ export default function ManageProposalList({
     }
 
     const proposalInfo = () =>
-        <div className={"manageSection"}>
-            <div className={"inputFont proposalInfo"}>To create proposal you need <span
+        <div className={"manageSection proposalInfo"}>
+            <div className={"inputFont proposalInfoSection"}>To create proposal you need <span
                 className={"proposalInfoValues"}>{ethers.utils.formatEther(tokensToCreateProposal)} ${governanceTokenSymbol}</span> deposited,
-                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)} ${governanceTokenSymbol}</span>
+                you have <span className={"proposalInfoValues"}>{ethers.utils.formatEther(balanceInContract)} ${governanceTokenSymbol}</span>.
+            </div>
+            <div className={"inputFont"}>Those funds are locked during proposal creation and you can get them back when proposal is finalized.
             </div>
         </div>
 
