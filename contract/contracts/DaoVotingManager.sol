@@ -10,7 +10,7 @@ contract DaoVotingManager is ReentrancyGuard {
 
     enum Vote {PENDING, YES, NO}
 
-    enum Status {PENDING, EXECUTED, EXECUTION_FAILED}
+    enum Status {PENDING, EXECUTED, EXECUTION_FAILED, FAILED}
 
     struct Proposal {
         uint id;
@@ -35,6 +35,7 @@ contract DaoVotingManager is ReentrancyGuard {
     uint public minTokensToExecuteProposal;
     uint public proposalTimeToVoteInSeconds;
     mapping(address => uint) public depositorsBalances;
+    mapping(address => uint) public proposalDepositorsBalances;
     Counters.Counter internal proposalIdCounter = Counters.Counter(1);
     mapping(address => mapping(uint => Vote)) public addressToProposalIdToVote;
     mapping(uint => Proposal) internal proposalIdToProposal;
@@ -68,10 +69,13 @@ contract DaoVotingManager is ReentrancyGuard {
     }
 
     function createProposal(uint256 _operation, address _to, uint256 _value, bytes calldata _data) public {
-        require(depositorsBalances[msg.sender] >= tokensToCreateProposal, "Not enough deposited tokens");
+        uint _tokensToCreateProposal = tokensToCreateProposal;
+        require(depositorsBalances[msg.sender] >= _tokensToCreateProposal, "Not enough deposited tokens");
         uint proposalId = proposalIdCounter.current();
 
         proposalIdToProposal[proposalId] = Proposal(proposalId, msg.sender, block.timestamp, _operation, _to, _value, _data, 0, 0, Status.PENDING);
+        depositorsBalances[msg.sender] -= _tokensToCreateProposal;
+        proposalDepositorsBalances[msg.sender] += _tokensToCreateProposal;
         addressToLastVotedProposalId[msg.sender] = proposalId;
         proposalIdCounter.increment();
     }
@@ -100,20 +104,26 @@ contract DaoVotingManager is ReentrancyGuard {
         proposalIdToProposal[_proposalId] = proposal;
     }
 
-    function execute(uint _proposalId) public nonReentrant {
+    function finalize(uint _proposalId) public nonReentrant {
         Proposal memory proposal = proposalIdToProposal[_proposalId];
         require(proposal.createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Too early to execute");
-        uint _yesVotes = proposal.yesVotes;
-        require(_yesVotes > proposal.noVotes, "Yes vote must be > no votes");
-        require(_yesVotes >= minTokensToExecuteProposal, "Yes vote must be >= minimum votes to execute");
         require(proposal.status == Status.PENDING, "Proposal status must be PENDING");
 
-        try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
-            proposal.status = Status.EXECUTED;
-        } catch {
-            proposal.status = Status.EXECUTION_FAILED;
+        uint _yesVotes = proposal.yesVotes;
+        if(_yesVotes > proposal.noVotes && _yesVotes >= minTokensToExecuteProposal) {
+            try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
+                proposal.status = Status.EXECUTED;
+            } catch {
+                proposal.status = Status.EXECUTION_FAILED;
+            }
+        } else {
+            proposal.status = Status.FAILED;
         }
         proposalIdToProposal[_proposalId] = proposal;
+        address _createdBy = proposal.createdBy;
+        uint _tokensToCreateProposal = tokensToCreateProposal;
+        depositorsBalances[_createdBy] += _tokensToCreateProposal;
+        proposalDepositorsBalances[_createdBy] -= _tokensToCreateProposal;
     }
 
     function getProposals() public view returns (Proposal[] memory) {
