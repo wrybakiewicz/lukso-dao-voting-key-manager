@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import {useNavigate} from "react-router";
+import axios from "axios";
 
 const CONTRACT_CREATED_FUNCTION_ID = "0x01c42bd7"
 
@@ -24,6 +25,10 @@ export default function Deploy({provider, signer}) {
     const [proposalTimeToVote, setProposalTimeToVote] = useState('')
     const [proposalTimeToVoteUnit, setProposalTimeToVoteUnit] = useState(1)
     const [deployInProgress, setDeployInProgress] = useState(false)
+
+    const updateDaoList = async (txHash) => {
+        return axios.post("https://21xxsivjvc.execute-api.eu-central-1.amazonaws.com/api/adddaobytxhash", {txHash: txHash})
+    }
 
     const deployContract = async () => {
         console.log("Deploying name: " + daoNameInput + " governanceTokenAddress: " + governanceTokenAddress +
@@ -40,7 +45,9 @@ export default function Deploy({provider, signer}) {
         const deployPromise = contractFactory.deploy(governanceTokenAddress, daoNameInput,
             tokensNumberToCreateProposalValue, minimumTokensToExecuteProposalValue,
             proposalTimeToVoteInSeconds).then(async result => {
-            return await getContractAddress(result.deployTransaction.hash)
+            const contractAddress = await getContractAddress(result.deployTransaction.hash)
+            updateDaoList(result.deployTransaction.hash)
+            return contractAddress
         }).catch(e => {
             console.error(e)
             throw e
