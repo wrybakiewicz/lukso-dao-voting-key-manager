@@ -106,7 +106,7 @@ export default function ManageDetails({myAddress, signer, provider, activeKey}) 
     }
 
     if (isValidContract === false) {
-        return <div className={"connectWallet"}>Provided address is not a DAO Key Manager</div>
+        return <div className={"connectWallet"}>Provided address is not a DAO Manager</div>
     }
 
     const overviewSection = () => {

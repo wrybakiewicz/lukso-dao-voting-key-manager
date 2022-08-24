@@ -17,7 +17,7 @@ export default function TabComponent({active, provider, signer, manageComponent}
 
     return <div>
         <div className={"header"}>
-            DAO Voting Key Manager
+            DAO Voting Manager
         </div>
         <div className={"tabComponent"}>
             <Tabs
