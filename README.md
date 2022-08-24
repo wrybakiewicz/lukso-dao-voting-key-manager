@@ -12,7 +12,9 @@ wojtek.rybakiewicz@gmail.com
 
 ## Short description
 
-Project allows deploying and voting in DAO based on **LSP0ERC725Account**. For governance each DAO Voting Manager
+DAO Voting Manager provides on chain voting mechanism being equivalent of **LSP6KeyManager** for DAOs.
+
+It's build on top of the **LSP0ERC725Account** - used for holding DAO assets. For governance each DAO Voting Manager
 contract has its own token compliant with **LSP7DigitalAsset**.
 
 Token holders are allowed to create and vote for DAO proposals - e.g. transferring LYXt or DAO governance token. There
