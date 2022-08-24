@@ -4,33 +4,29 @@ import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import DaoVotingManager from "./contract/DaoVotingManager.json";
 import {ContractFactory} from "ethers";
+import axios from "axios";
 
 export default function ManageDaoList({provider}) {
-    const daoListFromBackend = [{
-        address: "0x526b36563cca2ab71c48cae0aad10609995aecdc",
-        name: "Fashion DAO",
-        governanceToken: "LDO",
-    }, {
-        address: "0x526b36563cca2ab71c48cae0aad10609995aecdc",
-        name: "Investment DAO",
-        governanceToken: "ABC",
-    }]
 
     const [daoList, setDaoList] = useState()
 
     const initialize = () => {
-        const daoPromiseList = daoListFromBackend.map(dao => {
-            const contract = ContractFactory.getContract(dao.address, DaoVotingManager.abi, provider)
-            return contract.getProposals().then(proposals => {
-                return {
-                    proposals: proposals.length,
-                    address: dao.address,
-                    name: dao.name,
-                    governanceToken: dao.governanceToken
-                }
+        axios.get("https://21xxsivjvc.execute-api.eu-central-1.amazonaws.com/api/getdaos")
+            .then((response) => {
+                const daoListFromBackend = response.data.result
+                const daoPromiseList = daoListFromBackend.map(dao => {
+                    const contract = ContractFactory.getContract(dao.address, DaoVotingManager.abi, provider)
+                    return contract.getProposals().then(proposals => {
+                        return {
+                            proposals: proposals.length,
+                            address: dao.address,
+                            name: dao.name,
+                            governanceToken: dao.tokenSymbol
+                        }
+                    })
+                })
+                Promise.all(daoPromiseList).then(result => setDaoList(result))
             })
-        })
-        Promise.all(daoPromiseList).then(result => setDaoList(result))
     }
 
     useEffect(_ => {
