@@ -1,0 +1,1 @@
+CREATE TABLE daos (address TEXT PRIMARY KEY, name TEXT, token_symbol TEXT);
