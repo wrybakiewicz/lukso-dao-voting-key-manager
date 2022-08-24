@@ -6,15 +6,14 @@ import {ethers} from "ethers";
 import {useMediaQuery} from "react-responsive";
 import contract from "./contract/DaoVotingManager.json";
 import {useNavigate} from "react-router";
+import ManageDaoList from "./ManageDaoList";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 export default function ManageFind({address, signer, provider}) {
 
     const [isAddressValid, setIsAddressValid] = useState(false)
     const [existingDaoContractAddressInput, setExistingDaoContractAddressInput] = useState('')
-
-    const isBigScreen = useMediaQuery({
-        query: '(min-width: 1620px)'
-    })
 
     const navigate = useNavigate();
 
@@ -32,7 +31,11 @@ export default function ManageFind({address, signer, provider}) {
         }
     }
 
-    const findDao = () => <div className={isBigScreen ? "findDaoBig" : "findDaoSmall"}>
+    const findByAddress = () => <div className={"findDaoByAddress"}>
+        Find DAO by address
+    </div>
+
+    const findDao = () => <div className={"findDaoInput"}>
         <InputGroup className="mb-3">
             <Form.Control placeholder={"Existing DAO contract address"} value={existingDaoContractAddressInput}
                           onChange={e => updateFindExistingContractAddressInput(e.target.value)}/>
@@ -47,8 +50,15 @@ export default function ManageFind({address, signer, provider}) {
         return <div className={"connectWallet"}>Connect your wallet</div>
     }
 
-    return <div className={"manage"}>
-        {findDao()}
-        {/*//TODO: list of your daos: fetch from backend?*/}
+    return <div>
+        <Row>
+            <Col sm={4}/>
+            <Col sm={4}>
+                {findByAddress()}
+                {findDao()}
+                <ManageDaoList provider={provider} />
+            </Col>
+            <Col sm={4}/>
+        </Row>
     </div>
 }

@@ -1,14 +1,22 @@
 .manage {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     margin-top: 2%;
 }
 
-.findDaoBig {
-    width: 40%
+.findDaoByAddress {
+    font-size: 150%;
+    margin-top: 6%;
 }
 
-.findDaoSmall {
-    width: 65%
+.findDaoInput {
+    margin-top: 4%
+}
+
+.findDaoFromList {
+    margin-top: 4%;
+
+    font-size: 125%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
