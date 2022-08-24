@@ -7,6 +7,7 @@ import {useState} from "react";
 
 export default function NewProposalTransferNativeToken({
                                                            contract,
+                                                           daoAccountAddress,
                                                            governanceTokenAddress,
                                                            governanceTokenBalance,
                                                            proposalCreated,
@@ -28,8 +29,8 @@ export default function NewProposalTransferNativeToken({
         setCreatingProposalInProgress(true)
         updateCreatingProposal(true)
         const payload = tokenContract.interface.encodeFunctionData(
-            'transfer',
-            [contract.address, receiverAddress, ethers.utils.parseEther(amount), false, "0x"],
+            'transfer(address,address,uint256,bool,bytes)',
+            [daoAccountAddress, receiverAddress, ethers.utils.parseEther(amount), true, "0x"],
         );
         const createProposalPromise = contract.createProposal(0, governanceTokenAddress, 0, payload)
             .then(_ => proposalCreated())

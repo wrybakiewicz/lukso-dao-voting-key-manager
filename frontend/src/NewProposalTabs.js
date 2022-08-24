@@ -10,6 +10,7 @@ export default function NewProposalTabs({
                                             currentBalance,
                                             updateCreatingProposal,
                                             governanceTokenSymbol,
+                                            daoAccountAddress,
                                             governanceTokenBalance,
                                             tokenContract
                                         }) {
@@ -24,7 +25,7 @@ export default function NewProposalTabs({
             </Tab>
             <Tab eventKey="dao" title={"Transfer " + governanceTokenSymbol}>
                 <NewProposalTransferNativeToken contract={contract} proposalCreated={proposalCreated}
-                                                governanceTokenAddress={governanceTokenAddress}
+                                                governanceTokenAddress={governanceTokenAddress} daoAccountAddress={daoAccountAddress}
                                                 governanceTokenBalance={governanceTokenBalance} tokenContract={tokenContract}
                                                 updateCreatingProposal={(bool) => updateCreatingProposal(bool)}
                                                 governanceTokenSymbol={governanceTokenSymbol}/>

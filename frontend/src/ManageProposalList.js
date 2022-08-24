@@ -17,6 +17,7 @@ export default function ManageProposalList({
                                                proposalTimeToVote,
                                                balanceInContract,
                                                reload,
+                                               daoAccountAddress,
                                                tokenContract,
                                                governanceTokenBalance,
                                                governanceTokenAddress
@@ -139,7 +140,7 @@ export default function ManageProposalList({
     const newProposal = () => {
         if (addNewProposalOpened) {
             return <div className={"manageSection"}>
-                <NewProposalTabs contract={contract} proposalCreated={proposalCreated}
+                <NewProposalTabs contract={contract} proposalCreated={proposalCreated} daoAccountAddress={daoAccountAddress}
                                  governanceTokenAddress={governanceTokenAddress} tokenContract={tokenContract}
                                  currentBalance={currentBalance} governanceTokenBalance={governanceTokenBalance}
                                  updateCreatingProposal={(bool) => setCreatingProposalInProgress(bool)}
