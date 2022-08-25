@@ -21,7 +21,7 @@ Token holders are allowed to create and vote for DAO proposals - e.g. transferri
 is time to vote for proposals - specified during deploying contract. After time to vote the proposal can be executed -
 if passed, or if failed - deposit to create proposal is returned to its creator.
 
-DAO Voting Manager is designed to be easy plug and play tool for DAOs that wants to have on-chain voting.
+**DAO Voting Manager** is designed to be easy plug and play tool for DAOs that wants to have on-chain voting.
 
 ## Project contains:
 
@@ -33,15 +33,15 @@ DAO Voting Manager is designed to be easy plug and play tool for DAOs that wants
 
 To interact with Dapp user needs to have UP Browser Extension set up.
 
-Deploying DAO Voting Manager requires providing DAO governance token compliant with LSP7DigitalAsset which will be used
-for voting in this DAO.
+Deploying **DAO Voting Manager** requires providing DAO governance token compliant with **LSP7DigitalAsset** which will
+be used for voting in this DAO.
 
 #### Deploy Section - allows deploying new DAO Voting Manager
 
 User needs to provide:
 
 - DAO name
-- Governance Token Address - compliant with LSP7DigitalAsset that will be used for governance
+- Governance Token Address - compliant with **LSP7DigitalAsset** that will be used for governance
 - Number of tokens to create proposal - number of governance tokens to create proposal in DAO
 - Minimum tokens to execute proposal - minimum number of governance tokens that are required to be voted on 'Yes' to
   proposal to pass
@@ -49,9 +49,10 @@ User needs to provide:
 
 #### Manage Section - allows creating proposals and voting in existing DAOs
 
-DAO Voting Manager for particular DAO can be found by address or be chosen from list of all DAO Voting Managers.
+**DAO Voting Manager** for particular DAO can be found by address or be chosen from list of all DAO Voting Managers.
 
-**Overview** section - shows all DAO Voting Manager details, governance contract details and balances of DAO Account.
+**Overview** section - shows all **DAO Voting Manager** details, governance contract details and balances of DAO
+Account.
 
 **Deposit** section - to participate in governance - DAO governance token holders needs to deposit tokens to DAO Voting
 Manager contract. Those funds can be withdrawn in **Withdraw** section. The reasons for this design are described below
@@ -78,10 +79,10 @@ transferred to some other address.
 
 **Proposal spam and double voting prevention**
 
-To prevent voting more than one time with the same tokens DAO members needs to vote their tokens as described above.
+To prevent voting more than one time with the same tokens DAO members needs to deposit their tokens as described above.
 
-Another mechanism preventing malicious DAO members from creating huge number of proposals is deposit when creating
-proposal. This deposit is not participating in voting and is returned afterwards as described above.
+Another mechanism preventing malicious DAO members from creating huge number of proposals is requirement of deposit when
+creating proposal. This deposit is not participating in voting and is returned afterwards as described above.
 
 ## Technical Details
 
@@ -119,5 +120,5 @@ Backend contains of 2 AWS Lambdas that aggregates 'DAO Voting Manager list' data
 database.
 
 - addDaoByTxHash - based on transaction hash saves newly deployed DAO Voting Manager contract address with its details
-- getDaos - returns all DAO Voting Managers contract addresses with details (so frontend users can easily access them without
-  providing exact contract address)
+- getDaos - returns all DAO Voting Managers contract addresses with details (so frontend users can easily access them
+  without providing exact contract address)
