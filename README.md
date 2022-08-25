@@ -83,3 +83,41 @@ To prevent voting more than one time with the same tokens DAO members needs to v
 Another mechanism preventing malicious DAO members from creating huge number of proposals is deposit when creating
 proposal. This deposit is not participating in voting and is returned afterwards as described above.
 
+## Technical Details
+
+### Smart contracts
+
+**DaoVotingManager** is smart contract that is deployed on frontend 'Deploy' section and providing all functions to
+dApp:
+
+- deposit
+- withdraw
+- createProposal
+- vote
+- finalize
+- getProposals
+- getPossibleWithdrawTime
+
+There are also mock contracts implementing LSP7DigitalAsset used as example governance token in DaoVotingManager
+contract
+
+- **LSP7DigitalAssetMockERC20**
+- **LSP7DigitalAssetMock**
+
+They are used in unit tests and for manual testing and presentation purposes in dApp.
+
+### Frontend
+
+Frontend is React app that connects with **DaoVotingManager** contract and its **LSP7DigitalAsset** governance token
+contract.
+
+It also uses AWS lambdas for better UX - having 'All DAOs list' in 'Manage' section.
+
+### Backend
+
+Backend contains of 2 AWS Lambdas that aggregates 'DAO Voting Manager list' data for frontend app in PostgreSQL
+database.
+
+- addDaoByTxHash - based on transaction hash saves newly deployed DAO Voting Manager contract address with its details
+- getDaos - returns all DAO Voting Managers contract addresses with details (so frontend users can easily access them without
+  providing exact contract address)
