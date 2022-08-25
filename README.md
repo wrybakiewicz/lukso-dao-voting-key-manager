@@ -14,14 +14,15 @@ wojtek.rybakiewicz@gmail.com
 
 DAO Voting Manager provides on chain voting mechanism being equivalent of **LSP6KeyManager** for DAOs.
 
-It's build on top of the **LSP0ERC725Account** - used for holding DAO assets. For governance each DAO Voting Manager
+It's build on top of the **Universal Profile** - used for holding DAO assets. For governance each DAO Voting Manager
 contract uses its own token compliant with **LSP7DigitalAsset**.
 
-Token holders are allowed to create and vote for DAO proposals - e.g. transferring LYXt or DAO governance token. There
-is time to vote for proposals - specified during deploying contract. After time to vote the proposal can be executed -
-if passed, or if failed - deposit to create proposal is returned to its creator.
+Token holders are allowed to create and vote for DAO proposals - e.g. transferring LYXt, DAO governance token or
+interacting with any other smart contract. There is time to vote for proposals - specified during deploying contract.
+After time to vote the proposal can be executed - if passed, or if failed - deposit to create proposal is returned to
+its creator.
 
-**DAO Voting Manager** is designed to be easy plug and play tool for DAOs that wants to have on-chain voting.
+DAO Voting Manager is designed to be easy plug and play tool for DAOs that needs on-chain voting.
 
 ## Project contains:
 
@@ -33,15 +34,15 @@ if passed, or if failed - deposit to create proposal is returned to its creator.
 
 To interact with Dapp user needs to have UP Browser Extension set up.
 
-Deploying **DAO Voting Manager** requires providing DAO governance token compliant with **LSP7DigitalAsset** which will
-be used for voting in this DAO.
+Deploying **DAO Voting Manager** requires providing DAO governance token address compliant with **LSP7DigitalAsset**
+which will be used for voting in DAO.
 
 #### Deploy Section - allows deploying new DAO Voting Manager
 
 User needs to provide:
 
 - DAO name
-- Governance Token Address - compliant with **LSP7DigitalAsset** that will be used for governance
+- Governance Token Address - token compliant with **LSP7DigitalAsset** that will be used for governance
 - Number of tokens to create proposal - number of governance tokens to create proposal in DAO
 - Minimum tokens to execute proposal - minimum number of governance tokens that are required to be voted on 'Yes' to
   proposal to pass
@@ -51,15 +52,14 @@ User needs to provide:
 
 **DAO Voting Manager** for particular DAO can be found by address or be chosen from list of all DAO Voting Managers.
 
-**Overview** section - shows all **DAO Voting Manager** details, governance contract details and balances of DAO
-Account.
+**Overview** section - shows all **DAO Voting Manager** details, governance contract details and balances of DAO **Universal Profile**.
 
 **Deposit** section - to participate in governance - DAO governance token holders needs to deposit tokens to DAO Voting
 Manager contract. Those funds can be withdrawn in **Withdraw** section. The reasons for this design are described below
-in **Proposal spam and double voting prevention**.
+in **Proposal spam and double voting prevention** section.
 
-**Withdraw** section - after participating in governance, governance token holders can withdraw their tokens. Funds can
-be withdrawn after ending of last proposal that user voted on or created.
+**Withdraw** section - after participating in governance, governance token holders can withdraw their tokens from
+contract. Funds can be withdrawn after ending of last proposal that user voted on or created.
 
 **Proposals** section - contains list of ongoing and historical proposals.
 
@@ -74,15 +74,16 @@ Execution of successful proposal can be done after vote time if proposal passed.
 indicated by anyone by clicking 'Execute' button.
 
 After execution proposal changes state to 'Executed' - if executed without errors or 'Execution failed' - if proposed
-transaction failed. This may happen when network change its state during voting time - e.g. tokens was already
+transaction failed. This may happen when network change its state during voting time - e.g. tokens were already
 transferred to some other address.
 
 **Proposal spam and double voting prevention**
 
 To prevent voting more than one time with the same tokens DAO members needs to deposit their tokens as described above.
 
-Another mechanism preventing malicious DAO members from creating huge number of proposals is requirement of deposit when
-creating proposal. This deposit is not participating in voting and is returned afterwards as described above.
+Another mechanism preventing malicious DAO members from creating huge number of proposals is requirement of governance
+token deposit when creating proposal. This deposit tokens are not participating in voting and are returned afterwards as
+described above.
 
 ## Technical Details
 

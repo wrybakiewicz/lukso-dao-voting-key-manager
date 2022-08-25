@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 import {ILSP7DigitalAsset} from "@lukso/lsp-smart-contracts/contracts/LSP7DigitalAsset/ILSP7DigitalAsset.sol";
-import "@lukso/lsp-smart-contracts/contracts/LSP0ERC725Account/LSP0ERC725Account.sol";
+import "@lukso/lsp-smart-contracts/contracts/UniversalProfile.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -28,7 +28,7 @@ contract DaoVotingManager is ReentrancyGuard {
         Status status;
     }
 
-    LSP0ERC725Account public account;
+    UniversalProfile public account;
     ILSP7DigitalAsset public daoGovernanceToken;
     string public daoName;
     uint public tokensToCreateProposal;
@@ -42,7 +42,7 @@ contract DaoVotingManager is ReentrancyGuard {
     mapping(address => uint) public addressToLastVotedProposalId;
 
     //initialize LSP7DigitalAsset daoGovernanceToken by provided address
-    //creates LSP0ERC725Account - being used as DAO treasury
+    //creates UniversalProfile - being used as DAO treasury
     constructor(address _daoGovernanceTokenAddress, string memory _daoName,
         uint _tokensToCreateProposal, uint _minTokensToExecuteProposal, uint _proposalTimeToVoteInSeconds) {
         daoGovernanceToken = ILSP7DigitalAsset(_daoGovernanceTokenAddress);
@@ -50,7 +50,7 @@ contract DaoVotingManager is ReentrancyGuard {
         require(_tokensToCreateProposal <= _totalSupply, "Tokens to create proposal must be <= total supply");
         require(_minTokensToExecuteProposal <= _totalSupply, "Min tokens to create proposal must be <= total supply");
 
-        account = new LSP0ERC725Account(address(this));
+        account = new UniversalProfile(address(this));
         daoName = _daoName;
         tokensToCreateProposal = _tokensToCreateProposal;
         minTokensToExecuteProposal = _minTokensToExecuteProposal;
