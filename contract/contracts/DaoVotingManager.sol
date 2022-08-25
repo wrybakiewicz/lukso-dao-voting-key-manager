@@ -41,11 +41,12 @@ contract DaoVotingManager is ReentrancyGuard {
     mapping(uint => Proposal) internal proposalIdToProposal;
     mapping(address => uint) public addressToLastVotedProposalId;
 
+    //initialize LSP7DigitalAsset daoGovernanceToken by provided address
+    //creates LSP0ERC725Account - being used as DAO treasury
     constructor(address _daoGovernanceTokenAddress, string memory _daoName,
         uint _tokensToCreateProposal, uint _minTokensToExecuteProposal, uint _proposalTimeToVoteInSeconds) {
         daoGovernanceToken = ILSP7DigitalAsset(_daoGovernanceTokenAddress);
         uint _totalSupply = daoGovernanceToken.totalSupply();
-        daoGovernanceToken.authorizeOperator(address(this), type(uint256).max);
         require(_tokensToCreateProposal <= _totalSupply, "Tokens to create proposal must be <= total supply");
         require(_minTokensToExecuteProposal <= _totalSupply, "Min tokens to create proposal must be <= total supply");
 
@@ -56,11 +57,14 @@ contract DaoVotingManager is ReentrancyGuard {
         proposalTimeToVoteInSeconds = _proposalTimeToVoteInSeconds;
     }
 
+    //deposit governance token to DAO voting manager contract so depositor can participate in voting
     function deposit(uint _amount) public {
         daoGovernanceToken.transfer(msg.sender, address(this), _amount, true, "");
         depositorsBalances[msg.sender] += _amount;
     }
 
+    //withdraw governance token from DAO voting manager to depositor
+    //function can be executed after last proposal that DAO member voted on or created ends
     function withdraw(uint _amount) public {
         uint lastVotedProposalId = addressToLastVotedProposalId[msg.sender];
         require(proposalIdToProposal[lastVotedProposalId].createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Cannot withdraw before: last voted proposal created at time + proposalTimeToVoteInSeconds");
@@ -69,6 +73,8 @@ contract DaoVotingManager is ReentrancyGuard {
         daoGovernanceToken.transfer(address(this), msg.sender, _amount, true, "");
     }
 
+    //create proposal to be executed by DAO
+    //can be transferring native token, transferring DigitalAsset or interaction with any other contract
     function createProposal(uint256 _operation, address _to, uint256 _value, bytes calldata _data) public {
         uint _tokensToCreateProposal = tokensToCreateProposal;
         require(depositorsBalances[msg.sender] >= _tokensToCreateProposal, "Not enough deposited tokens");
@@ -81,6 +87,8 @@ contract DaoVotingManager is ReentrancyGuard {
         proposalIdCounter.increment();
     }
 
+    //vote on proposal with YES or NO vote
+    //can be executed only during voting time (createProposal execution time + proposalTimeToVoteInSeconds)
     function vote(uint _proposalId, bool _vote) public {
         require(depositorsBalances[msg.sender] > 0, "Address must have some deposit");
         require(addressToProposalIdToVote[msg.sender][_proposalId] == Vote.PENDING, "Address already voted");
@@ -105,13 +113,16 @@ contract DaoVotingManager is ReentrancyGuard {
         proposalIdToProposal[_proposalId] = proposal;
     }
 
+    //finalizing proposal - executing and returning deposit to proposal creator if passed or just returning deposit if failed
+    //can be executed one time after time to vote end
+    //requirements to pass are: Yes > No votes and Yes votes > minTokensToExecuteProposal
     function finalize(uint _proposalId) public nonReentrant {
         Proposal memory proposal = proposalIdToProposal[_proposalId];
         require(proposal.createdAt + proposalTimeToVoteInSeconds < block.timestamp, "Too early to execute");
         require(proposal.status == Status.PENDING, "Proposal status must be PENDING");
 
         uint _yesVotes = proposal.yesVotes;
-        if(_yesVotes > proposal.noVotes && _yesVotes >= minTokensToExecuteProposal) {
+        if (_yesVotes > proposal.noVotes && _yesVotes >= minTokensToExecuteProposal) {
             try account.execute(proposal.operation, proposal.to, proposal.value, proposal.payload) {
                 proposal.status = Status.EXECUTED;
             } catch {
@@ -127,6 +138,7 @@ contract DaoVotingManager is ReentrancyGuard {
         proposalDepositorsBalances[_createdBy] -= _tokensToCreateProposal;
     }
 
+    //view that aggregates all proposals details
     function getProposals() public view returns (Proposal[] memory) {
         uint proposalCount = proposalIdCounter.current() - 1;
         Proposal[] memory result = new Proposal[](proposalCount);
@@ -136,6 +148,7 @@ contract DaoVotingManager is ReentrancyGuard {
         return result;
     }
 
+    //view that returns time when msg.sender will be able to perform withdrawal
     function getPossibleWithdrawTime() public view returns (uint) {
         uint lastVotedProposalId = addressToLastVotedProposalId[msg.sender];
         return proposalIdToProposal[lastVotedProposalId].createdAt + proposalTimeToVoteInSeconds;
