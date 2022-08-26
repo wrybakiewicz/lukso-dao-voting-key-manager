@@ -5,7 +5,8 @@
 This project is submission for **Hackathon: LUKSO Build UP! #1** DAO Voting Key Manager For UP Based DAO And Interface
 task.
 
-Working dApp:  [daovotingmanager.com](https://www.daovotingmanager.com/)
+Working dApp:  [daovotingmanager.com](https://www.daovotingmanager.com/) \
+Video Presentation: [Youtube](https://youtu.be/pXCNFqOnN20)
 
 Done by **Wojciech Rybakiewicz** \
 wojtek.rybakiewicz@gmail.com
