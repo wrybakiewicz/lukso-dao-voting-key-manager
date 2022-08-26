@@ -24,6 +24,8 @@ its creator.
 
 DAO Voting Manager is designed to be easy plug and play tool for DAOs that needs on-chain voting.
 
+![](assets/screenshot.png?raw=true)
+
 ## Project contains:
 
 - Frontend app
@@ -123,3 +125,10 @@ database.
 - addDaoByTxHash - based on transaction hash saves newly deployed DAO Voting Manager contract address with its details
 - getDaos - returns all DAO Voting Managers contract addresses with details (so frontend users can easily access them
   without providing exact contract address)
+
+### More screenshots
+![](assets/screen1.png?raw=true)
+![](assets/screen2.png?raw=true)
+![](assets/screen3.png?raw=true)
+![](assets/screen4.png?raw=true)
+![](assets/screen5.png?raw=true)
